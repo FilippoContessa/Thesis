@@ -1,7 +1,8 @@
 import os
-import nibabel as nib
+import nibabel as nib #per gestire i file .nii in python 
 import gzip
 import shutil
+import matplotlib.pyplot as plt
 
 # Percorso principale contenente le cartelle sub-versexxx
 main_path = "/mnt/d/osfstorage-archive/dataset-verse19test/derivatives"
@@ -33,9 +34,22 @@ for subdir in os.listdir(main_path):
                 nii_images.append(nii_image)
                 image_names.append(nii_filename)  # Salva il nome dell'immagine
                 
-                # Rimuovi il file estratto, se non necessario mantenerlo
-                os.remove(nii_path)
 
 # Ora nii_images contiene tutte le immagini caricate e image_names i loro nomi
-print(f"Caricate {len(nii_images)} immagini .nii")
-print("Nomi delle immagini caricate:", image_names)
+
+index = 12
+
+# Assicurati che l'indice sia entro i limiti
+if index < len(nii_images):
+    selected_image = nii_images[index]
+    selected_image_data = selected_image.get_fdata()
+
+    # Visualizza una sezione dell'immagine (qui prendiamo la sezione centrale sull'asse z)
+    middle_slice = selected_image_data[:, :, selected_image_data.shape[2] // 2]
+
+    plt.imshow(middle_slice.T, cmap="gray", origin="lower")
+    plt.title(f"Immagine: {image_names[index]}")
+    plt.axis("off")
+    plt.show()
+else:
+    print("coglione")
