@@ -26,7 +26,7 @@ for subdir in os.listdir(main_path):
             if file.endswith(".gz"):
                 gz_path = os.path.join(subdir_path, file)
                 # Estrai il file .nii da .gz in una posizione temporanea
-                nii_filename = file.replace(".gz", ".nii")
+                nii_filename = file.replace(".gz", "")
                 nii_path = os.path.join(subdir_path, nii_filename)
                 
                 with gzip.open(gz_path, 'rb') as f_in:
