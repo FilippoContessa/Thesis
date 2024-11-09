@@ -4,6 +4,10 @@ import gzip
 import shutil
 import matplotlib.pyplot as plt
 
+# TODO: i file sono tutti unzippati, dovremmo togliere il fatto di unzipparli ogni volta e usare direttamente i file .nii 
+
+# TODO: dividere questo file in una parte per l'unzip e una per l'analisi etc 
+
 # Percorso principale contenente le cartelle sub-versexxx
 main_path = "/mnt/d/osfstorage-archive/dataset-verse19test/derivatives"
 
@@ -15,10 +19,10 @@ image_names = []
 for subdir in os.listdir(main_path):
     subdir_path = os.path.join(main_path, subdir)
     
-    # Controlla se è una directory con il prefisso corretto
+    # Controlla se il percorso subdir_path sia una directory con il prefisso corretto
     if os.path.isdir(subdir_path) and subdir.startswith("sub-verse"):
         # Cerca il file .gz nella sottocartella
-        for file in os.listdir(subdir_path):
+        for file in os.listdir(subdir_path): #scorre tutti i file nella subdir_path
             if file.endswith(".gz"):
                 gz_path = os.path.join(subdir_path, file)
                 # Estrai il file .nii da .gz in una posizione temporanea
@@ -36,20 +40,3 @@ for subdir in os.listdir(main_path):
                 
 
 # Ora nii_images contiene tutte le immagini caricate e image_names i loro nomi
-
-index = 12
-
-# Assicurati che l'indice sia entro i limiti
-if index < len(nii_images):
-    selected_image = nii_images[index]
-    selected_image_data = selected_image.get_fdata()
-
-    # Visualizza una sezione dell'immagine (qui prendiamo la sezione centrale sull'asse z)
-    middle_slice = selected_image_data[:, :, selected_image_data.shape[2] // 2]
-
-    plt.imshow(middle_slice.T, cmap="gray", origin="lower")
-    plt.title(f"Immagine: {image_names[index]}")
-    plt.axis("off")
-    plt.show()
-else:
-    print("coglione")
