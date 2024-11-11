@@ -10,4 +10,4 @@ for i in range(31,len(nii_images)):
     save_slices(slices,image_names[i])
 
 
-#mancano all'appello 108,119,236
+# FIXME: mancano all'appello 108,119,236
