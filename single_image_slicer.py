@@ -2,10 +2,6 @@ import pickle
 import os
 import matplotlib.pyplot as plt
 
-# Carica le immagini e i nomi dal file .pkl
-with open("images_data.pkl", "rb") as f:
-    nii_images, image_names = pickle.load(f)
-
 def get_slices(index, nii_images, image_names):
 
     selected_image = nii_images[index]
@@ -26,13 +22,28 @@ def get_slices(index, nii_images, image_names):
     sagittal_slice_quarter = image_data[x_quarter, :, :]
     sagittal_slice = image_data[x_center, :,:]  
     sagittal_slice_three_quarters = image_data[x_three_quarters, :, :]
-
+#TODO: AGGIUNGI INFO SUL NOME DELLE SLICE
     slices = [sagittal_slice_quarter, sagittal_slice, sagittal_slice_three_quarters]
     return slices
 
-def plot_slices(slice):
+def plot_slice(slice):
     plt.imshow(slice, cmap="gray")
     plt.show()
 
-slices = get_slices(35, nii_images, image_names)
-plot_slices(slices[1])
+import os
+import matplotlib.pyplot as plt
+
+def save_slices(slices, image_names):
+    slices_folder = "slices_output"
+    os.makedirs(slices_folder, exist_ok=True)
+    
+    # Scorre tutte le slice e salva ciascuna
+    for i in range(len(slices)):
+        slice = slices[i]
+        slice_name = f"{image_names[i]}_slice_{i}.png"  # Definisce il nome della slice FIXME: IN REALTà E SBAGLIATO, MODIFICALO QUANDO PERFEZIONERAI GET SLICES
+        slices_path = os.path.join(slices_folder, slice_name)  # Costruisce il percorso completo del file
+
+        # Salva la slice come immagine PNG
+        plt.imsave(slices_path, slice, cmap="gray")
+        print(f"Salvato {slice_name} a {slices_path}")
+
