@@ -34,14 +34,18 @@ def plot_slice(slice):
     plt.imshow(slice, cmap="gray")
     plt.show()
 
-def save_slices(slices):
-    slices_folder = "slices_output_2.0"
+def save_slices(slices, image_name):
+    slices_folder = "slices_output_final"
     os.makedirs(slices_folder, exist_ok=True)
     
+    subfolder_name = image_name.split('_')[0]  # estrae "sub-verseXXX" da "sub-verseXXX_seg-vert_msk.nii"
+    subfolder_path = os.path.join(slices_folder, subfolder_name)
+    os.makedirs(subfolder_path, exist_ok=True)
+
     # Scorre tutte le slice e salva ciascuna nell'ordine specificato
     for slice_data, slice_name in slices:
         # Costruisce il percorso completo del file
-        slices_path = os.path.join(slices_folder, f"{slice_name}.png")
+        slices_path = os.path.join(subfolder_path, f"{slice_name}.png")
 
         # Salva la slice come immagine PNG
         plt.imsave(slices_path, slice_data, cmap="gray")
