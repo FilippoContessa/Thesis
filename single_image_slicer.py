@@ -22,28 +22,27 @@ def get_slices(index, nii_images, image_names):
     sagittal_slice_quarter = image_data[x_quarter, :, :]
     sagittal_slice = image_data[x_center, :,:]  
     sagittal_slice_three_quarters = image_data[x_three_quarters, :, :]
-#TODO: AGGIUNGI INFO SUL NOME DELLE SLICE
-    slices = [sagittal_slice_quarter, sagittal_slice, sagittal_slice_three_quarters]
+
+    slices = [
+        (sagittal_slice_quarter, f"{selected_image_name}_slice_quarter"),
+        (sagittal_slice, f"{selected_image_name}_slice_center"),
+        (sagittal_slice_three_quarters, f"{selected_image_name}_slice_three_quarters")
+    ]
     return slices
 
 def plot_slice(slice):
     plt.imshow(slice, cmap="gray")
     plt.show()
 
-import os
-import matplotlib.pyplot as plt
-
-def save_slices(slices, image_names):
-    slices_folder = "slices_output"
+def save_slices(slices):
+    slices_folder = "slices_output_2.0"
     os.makedirs(slices_folder, exist_ok=True)
     
-    # Scorre tutte le slice e salva ciascuna
-    for i in range(len(slices)):
-        slice = slices[i]
-        slice_name = f"{image_names[i]}_slice_{i}.png"  # Definisce il nome della slice FIXME: IN REALTà E SBAGLIATO, MODIFICALO QUANDO PERFEZIONERAI GET SLICES
-        slices_path = os.path.join(slices_folder, slice_name)  # Costruisce il percorso completo del file
+    # Scorre tutte le slice e salva ciascuna nell'ordine specificato
+    for slice_data, slice_name in slices:
+        # Costruisce il percorso completo del file
+        slices_path = os.path.join(slices_folder, f"{slice_name}.png")
 
         # Salva la slice come immagine PNG
-        plt.imsave(slices_path, slice, cmap="gray")
+        plt.imsave(slices_path, slice_data, cmap="gray")
         print(f"Salvato {slice_name} a {slices_path}")
-
