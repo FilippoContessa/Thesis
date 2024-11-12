@@ -32,7 +32,7 @@ print(f"Caricate e salvate {len(nii_images)} immagini .nii")
 
 # Caricamento dei dati JSON e salvataggio in .pkl
 
-json_info = []
+json_files = []
 
 for subdir in os.listdir(main_path):
     subdir_path = os.path.join(main_path, subdir)
@@ -44,12 +44,12 @@ for subdir in os.listdir(main_path):
                 # Carica il file JSON
                 with open(json_path, 'r') as f:
                     data = json.load(f)
-                    json_info.append(data)
+                    json_files.append(data)
 
-# Salva l'intera lista `json_info` in un file .pkl
+# Salva l'intera lista `json_files` in un file .pkl
 pkl_path = os.path.join(main_path, "combined_data.pkl")
 with open("json_data.pkl", 'wb') as pkl_file:
-    pickle.dump(json_info, pkl_file)
+    pickle.dump(json_files, pkl_file)
 
-print(f"Caricate e salvate {len(json_info)}  file JSON")
+print(f"Caricate e salvate {len(json_files)}  file JSON")
 
