@@ -15,18 +15,12 @@ def get_slices(index, nii_images, image_names):
     # Seleziona tre slice a diverse profondità:
 
     # Slice verticali:
-    x_quarter = image_data.shape[0]//4
     x_center = image_data.shape[0]//2
-    x_three_quarters = (image_data.shape[0] * 3) // 4
 
-    sagittal_slice_quarter = image_data[x_quarter, :, :]
-    sagittal_slice = image_data[x_center, :,:]  
-    sagittal_slice_three_quarters = image_data[x_three_quarters, :, :]
+    sagittal_slice = image_data[x_center, :,:]  #nell'asse Z ci va un intervallo di valori dato dal file json. 
 
     slices = [
-        (sagittal_slice_quarter, f"{selected_image_name}_slice_quarter"),
         (sagittal_slice, f"{selected_image_name}_slice_center"),
-        (sagittal_slice_three_quarters, f"{selected_image_name}_slice_three_quarters")
     ]
     return slices
 
@@ -35,7 +29,7 @@ def plot_slice(slice):
     plt.show()
 
 def save_slices(slices, image_name):
-    slices_folder = "slices_output_final"
+    slices_folder = "slices_output"
     os.makedirs(slices_folder, exist_ok=True)
     
     subfolder_name = image_name.split('_')[0]  # estrae "sub-verseXXX" da "sub-verseXXX_seg-vert_msk.nii"
