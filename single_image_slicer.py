@@ -2,10 +2,10 @@ import pickle
 import os
 import matplotlib.pyplot as plt
 
-def get_slices(index, nii_images, image_names):
-
+def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
     selected_image_name = image_names[index]
+    selected_json_info = json_files[index]
 
     # Ottieni i dati dell'immagine
     image_data = selected_image.get_fdata()
