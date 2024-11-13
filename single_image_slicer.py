@@ -1,7 +1,7 @@
 import pickle
 import os
 import matplotlib.pyplot as plt
-
+from access_to_json_files import get_vertebrae_coordinates
 
 def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
@@ -13,16 +13,18 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
     print(f"Forma dell'immagine: {image_data.shape}")
 
-    # Seleziona tre slice a diverse profondità:
+    margin = 5
+    coordinates = get_vertebrae_coordinates(index, json_files, 1)
 
-    # Slice verticali:
     x_center = image_data.shape[0]//2
 
-    sagittal_slice = image_data[x_center, :,:]  #nell'asse Z ci va un intervallo di valori dato dal file json. 
-
+    sagittal_slice = image_data[x_center, :,coordinates[2]- margin: coordinates[2] + margin ]  #nell'asse Z ci va un intervallo di valori dato dal file json. 
+    
+    #TODO: fissato un margine, vediamo di ottenere la posizione della x,y,z centrale di ciascuna vertebra, e poi ricavarne un quadratino di dimensioni fissate attorno
     slices = [
-        (sagittal_slice, f"{selected_image_name}_slice_center"),
+    (sagittal_slice, f"{selected_image_name}_slice_center"),
     ]
+
     return slices
 
 def plot_slice(slice):
