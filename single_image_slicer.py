@@ -31,7 +31,7 @@ def get_veretbrae_distances(index, json_files):
 def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
     selected_image_name = image_names[index]
-    selected_json_info = json_files[index]
+    json_info = json_files[index] # file .json corrispondente all'immagine selezionata
 
     # Ottieni i dati dell'immagine
     image_data = selected_image.get_fdata()
