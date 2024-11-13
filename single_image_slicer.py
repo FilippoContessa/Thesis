@@ -13,14 +13,18 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
     print(f"Forma dell'immagine: {image_data.shape}")
 
-    margin = 5
-    coordinates = get_vertebrae_coordinates(index, json_files, 1)
+    margin = 13
+    #TODO: ESTENDI AL POSTO DELL'1 CI VUOLE UN CICLO FOR PER VERTEBRAE_INDEX CHE SCORRA PER TUTTI GLI ELEMENTI DEL FILE JSON
+    vertebrae_index = 1
+    coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
 
     x_center = image_data.shape[0]//2
+    sagittal_slice = image_data[x_center, 
+    int(round(coordinates[1])) - margin : int(round(coordinates[1])) + margin, 
+    :]
 
-    sagittal_slice = image_data[x_center, :,coordinates[2]- margin: coordinates[2] + margin ]  #nell'asse Z ci va un intervallo di valori dato dal file json. 
+    #nell'asse Y ci va un intervallo di valori dato dal file json, L'asse z regola la larghezza dell'immagine.
     
-    #TODO: fissato un margine, vediamo di ottenere la posizione della x,y,z centrale di ciascuna vertebra, e poi ricavarne un quadratino di dimensioni fissate attorno
     slices = [
     (sagittal_slice, f"{selected_image_name}_slice_center"),
     ]
