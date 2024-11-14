@@ -1,7 +1,7 @@
 import pickle
 import os
 import matplotlib.pyplot as plt
-from access_to_json_files import get_vertebrae_coordinates
+from access_to_json_files import get_vertebrae_Y_distances, get_vertebrae_coordinates
 import numpy as np
 
 def get_dynamic_x_center(image_data):
@@ -25,17 +25,18 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Forma dell'immagine: {image_data.shape}")
     
     #TODO: implementa un modo per calcolare il margine variabile
-    margin = 14
-    
+    margin_prev = 14
+    margin_next = get_vertebrae_Y_distances(index, json_files)
     x_center = get_dynamic_x_center(image_data)
     slices = []
 
     for vertebrae_index in range(1,len(json_info)):
+
         coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
 
         sagittal_slice = image_data[x_center,:,:]
         single_vertebrae_slice = image_data[x_center, 
-        int(round(coordinates[1])) - margin : int(round(coordinates[1])) + margin, 
+        int(round(coordinates[1])) - margin_prev : int(round(coordinates[1])) + margin_next[-2], 
         :]
 
         #nell'asse Y ci va un intervallo di valori dato dal file json, L'asse z regola la larghezza dell'immagine.
