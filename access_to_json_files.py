@@ -7,14 +7,10 @@ with open("json_data.pkl", "rb") as f:
 
 def get_vertebrae_coordinates(json_file_index, json_files, vertebrae_index):
     json_file = json_files[json_file_index]
-    coordinates = []
-    X , Y, Z  = json_file[vertebrae_index].get("X"), json_file[vertebrae_index].get("Y"), json_file[vertebrae_index].get("Z")  # Il secondo elemento ha la coordinata X pari a 94.8
-
+    X , Y, Z  = json_file[vertebrae_index].get("X"), json_file[vertebrae_index].get("Y"), json_file[vertebrae_index].get("Z") 
     return X, Y, Z
 
 coordinates = get_vertebrae_coordinates(0,json_files,6)
-
-print(coordinates[0], coordinates[1], coordinates[2])
 
 def get_vertebrae_distances(index, json_files):
     json_info = json_files[index]

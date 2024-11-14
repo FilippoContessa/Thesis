@@ -1,7 +1,7 @@
 import pickle
 import os
 import matplotlib.pyplot as plt
-
+from access_to_json_files import get_vertebrae_coordinates
 
 def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
@@ -13,16 +13,21 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
     print(f"Forma dell'immagine: {image_data.shape}")
 
-    # Seleziona tre slice a diverse profondità:
-
-    # Slice verticali:
+    margin = 13
     x_center = image_data.shape[0]//2
+    slices = []
+    #TODO: ESTENDI AL POSTO DELL'1 CI VUOLE UN CICLO FOR PER VERTEBRAE_INDEX CHE SCORRA PER TUTTI GLI ELEMENTI DEL FILE JSON
+    for vertebrae_index in range(1,len(json_info)):
+        coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
 
-    sagittal_slice = image_data[x_center, :,:]  #nell'asse Z ci va un intervallo di valori dato dal file json. 
+        sagittal_slice = image_data[x_center, 
+        int(round(coordinates[1])) - margin : int(round(coordinates[1])) + margin, 
+        :]
 
-    slices = [
-        (sagittal_slice, f"{selected_image_name}_slice_center"),
-    ]
+        #nell'asse Y ci va un intervallo di valori dato dal file json, L'asse z regola la larghezza dell'immagine.
+    
+        slices.append((sagittal_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
+
     return slices
 
 def plot_slice(slice):
