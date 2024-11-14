@@ -10,8 +10,23 @@ def get_vertebrae_coordinates(json_file_index, json_files, vertebrae_index):
     X , Y, Z  = json_file[vertebrae_index].get("X"), json_file[vertebrae_index].get("Y"), json_file[vertebrae_index].get("Z") 
     return X, Y, Z
 
+def get_vertebrae_Y_prev_distances(index, json_files):
+    json_info = json_files[index]
+    coordinate_Y_prev_differences = []
+    
+    for i in range(1, len(json_info)):  # Inizia dal secondo elemento per evitare errori
+        y_current = json_info[i].get("Y")
+        y_prev = json_info[i - 1].get("Y")
+        
+        if y_current is not None and y_prev is not None:
+            # Calcola la differenza assoluta approssimando al valore intero più vicino
+            diff_y_prev = round(abs(y_current - y_prev) / 2)
 
-def get_vertebrae_Y_distances(index, json_files):
+            coordinate_Y_prev_differences.append(diff_y_prev)
+
+    return coordinate_Y_prev_differences
+
+def get_vertebrae_Y_next_distance(index, json_files):
     json_info = json_files[index]
     coordinate_Y_differences = []
     
