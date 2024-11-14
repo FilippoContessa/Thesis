@@ -1,7 +1,7 @@
 import pickle
 import os
 import matplotlib.pyplot as plt
-from access_to_json_files import get_vertebrae_coordinates
+from access_to_json_files import get_vertebrae_Y_next_distance, get_vertebrae_Y_prev_distances, get_vertebrae_coordinates
 import numpy as np
 
 def get_dynamic_x_center(image_data):
@@ -25,19 +25,27 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Forma dell'immagine: {image_data.shape}")
     
     #TODO: implementa un modo per calcolare il margine variabile
-    margin = 14
-    
+    margin_prev = get_vertebrae_Y_prev_distances(index, json_files)
+    margin_next = get_vertebrae_Y_next_distance (index, json_files)
+    fixed_margin = 13
+    bias = 3
     x_center = get_dynamic_x_center(image_data)
     slices = []
 
     for vertebrae_index in range(1,len(json_info)):
+
         coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
-
         sagittal_slice = image_data[x_center,:,:]
-        single_vertebrae_slice = image_data[x_center, 
-        int(round(coordinates[1])) - margin : int(round(coordinates[1])) + margin, 
-        :]
-
+        if vertebrae_index == 1:
+            single_vertebrae_slice = image_data[x_center, 
+            int(round(coordinates[1])) - fixed_margin - bias: int(round(coordinates[1])) + margin_next[vertebrae_index-2] + bias, 
+            :]
+        if vertebrae_index == len(json_info) -1 :
+            single_vertebrae_slice = image_data[x_center, 
+            int(round(coordinates[1])) - margin_prev[vertebrae_index-2] - bias : int(round(coordinates[1])) + fixed_margin + bias, 
+            :]
+        else:
+            single_vertebrae_slice = image_data[x_center,int(round(coordinates[1])) - margin_prev[vertebrae_index-2] - bias: int(round(coordinates[1])) + margin_next[vertebrae_index-2] + bias, :]
         #nell'asse Y ci va un intervallo di valori dato dal file json, L'asse z regola la larghezza dell'immagine.
     
         slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
