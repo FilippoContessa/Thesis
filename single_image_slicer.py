@@ -23,10 +23,10 @@ def get_slices(index, nii_images, image_names, json_files):
     image_data = selected_image.get_fdata()
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
     print(f"Forma dell'immagine: {image_data.shape}")
-
+    
     #TODO: implementa un modo per calcolare il margine variabile
     margin = 14
-    #FIXME: Mi sembra stano che il cut sagittale su alcune immagini mi rimandi a un'immagine nera.
+    
     x_center = get_dynamic_x_center(image_data)
     slices = []
 
