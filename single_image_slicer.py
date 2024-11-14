@@ -13,6 +13,7 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
     print(f"Forma dell'immagine: {image_data.shape}")
 
+    #TODO: implementa un modo per calcolare il margine variabile
     margin = 13
     x_center = image_data.shape[0]//2
     slices = []
