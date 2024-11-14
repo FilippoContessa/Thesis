@@ -24,7 +24,6 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
     print(f"Forma dell'immagine: {image_data.shape}")
     
-    #TODO: implementa un modo per calcolare il margine variabile
     margin_prev = get_vertebrae_Y_prev_distances(index, json_files)
     margin_next = get_vertebrae_Y_next_distance (index, json_files)
     fixed_margin = 13

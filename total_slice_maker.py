@@ -10,7 +10,6 @@ with open("json_data.pkl", "rb") as f:
 
 # FIXME: mancano all'appello 108,119,236 + il ciclo for che sembra arrestarsi sempre alla 108/119
 
-# TODO: Girare le immagini che sono orizzontali.
 
 for i in range(6,10): 
     slices = get_slices(i, nii_images, image_names, json_files)
