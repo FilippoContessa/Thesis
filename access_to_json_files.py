@@ -10,7 +10,6 @@ def get_vertebrae_coordinates(json_file_index, json_files, vertebrae_index):
     X , Y, Z  = json_file[vertebrae_index].get("X"), json_file[vertebrae_index].get("Y"), json_file[vertebrae_index].get("Z") 
     return X, Y, Z
 
-coordinates = get_vertebrae_coordinates(0,json_files,6)
 
 def get_vertebrae_distances(index, json_files):
     json_info = json_files[index]
