@@ -52,4 +52,3 @@ with open("json_data.pkl", 'wb') as pkl_file:
     pickle.dump(json_files, pkl_file)
 
 print(f"Caricate e salvate {len(json_files)}  file JSON")
-
