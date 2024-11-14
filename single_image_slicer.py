@@ -36,7 +36,7 @@ def get_slices(index, nii_images, image_names, json_files):
 
         sagittal_slice = image_data[x_center,:,:]
         single_vertebrae_slice = image_data[x_center, 
-        int(round(coordinates[1])) - margin_prev : int(round(coordinates[1])) + margin_next[-2], 
+        int(round(coordinates[1])) - margin_prev : int(round(coordinates[1])) + margin_next[vertebrae_index-2], 
         :]
 
         #nell'asse Y ci va un intervallo di valori dato dal file json, L'asse z regola la larghezza dell'immagine.

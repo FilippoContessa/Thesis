@@ -18,14 +18,16 @@ def get_vertebrae_Y_distances(index, json_files):
     for i in range(1, len(json_info)-1):  # Ignora il primo e l'ultimo elemento per evitare errori
         y_current = json_info[i].get("Y")
         y_next = json_info[i + 1].get("Y")
+        y_prev = json_info[i - 1].get("Y")
     
         if y_current is not None and y_next is not None:
             # Calcola la differenza assoluta approssimando al valore intero più vicino per ciascuna dimensione
-            diff_y = round(abs(y_next - y_current) / 2)
+            #diff_y_prev = round(abs(y_current - y_prev) / 2)
+            diff_y_next = round(abs(y_next - y_current) / 2)
             
             label_current = json_info[i].get("label")
             label_next = json_info[i + 1].get("label")
             
-            coordinate_Y_differences.append(diff_y)
+            coordinate_Y_differences.append(diff_y_next)
 
     return coordinate_Y_differences
