@@ -14,20 +14,23 @@ def get_slices(index, nii_images, image_names, json_files):
     print(f"Forma dell'immagine: {image_data.shape}")
 
     #TODO: implementa un modo per calcolare il margine variabile
-    margin = 13
+    margin = 14
+    #FIXME: Mi sembra stano che il cut sagittale su alcune immagini mi rimandi a un'immagine nera.
     x_center = image_data.shape[0]//2
     slices = []
-    #TODO: ESTENDI AL POSTO DELL'1 CI VUOLE UN CICLO FOR PER VERTEBRAE_INDEX CHE SCORRA PER TUTTI GLI ELEMENTI DEL FILE JSON
+
     for vertebrae_index in range(1,len(json_info)):
         coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
 
-        sagittal_slice = image_data[x_center, 
+        sagittal_slice = image_data[x_center,:,:]
+        single_vertebrae_slice = image_data[x_center, 
         int(round(coordinates[1])) - margin : int(round(coordinates[1])) + margin, 
         :]
 
         #nell'asse Y ci va un intervallo di valori dato dal file json, L'asse z regola la larghezza dell'immagine.
     
-        slices.append((sagittal_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
+        slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
+        slices.append((sagittal_slice, f"Sagittal_{selected_image_name}"))
 
     return slices
 
