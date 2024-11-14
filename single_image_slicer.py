@@ -50,4 +50,3 @@ def save_slices(slices, image_name):
         # Salva la slice come immagine PNG
         plt.imsave(slices_path, slice_data, cmap="gray")
         print(f"Salvato {slice_name} a {slices_path}")
-

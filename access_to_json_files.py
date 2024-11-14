@@ -37,4 +37,3 @@ def get_vertebrae_distances(index, json_files):
             coordinate_differences.append((label_current, label_next, diff_x, diff_y, diff_z))
 
     return coordinate_differences
-
