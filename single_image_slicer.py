@@ -2,6 +2,17 @@ import pickle
 import os
 import matplotlib.pyplot as plt
 from access_to_json_files import get_vertebrae_coordinates
+import numpy as np
+
+def get_dynamic_x_center(image_data):
+    # Calcola l'intensità media su ogni slice lungo l'asse X (profondità)
+    intensity_means = np.mean(image_data, axis=(1, 2))
+
+    # Trova l'indice con l'intensità massima, che dovrebbe corrispondere alla colonna vertebrale
+    x_center = np.argmax(intensity_means)
+
+    # Se desideri una posizione più stabile, puoi anche considerare la mediana dei primi valori massimi
+    return x_center
 
 def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
@@ -16,7 +27,7 @@ def get_slices(index, nii_images, image_names, json_files):
     #TODO: implementa un modo per calcolare il margine variabile
     margin = 14
     #FIXME: Mi sembra stano che il cut sagittale su alcune immagini mi rimandi a un'immagine nera.
-    x_center = image_data.shape[0]//2
+    x_center = get_dynamic_x_center(image_data)
     slices = []
 
     for vertebrae_index in range(1,len(json_info)):
