@@ -5,6 +5,9 @@ from access_to_json_files import get_vertebrae_Y_next_distance, get_vertebrae_Y_
 import numpy as np
 from scipy.ndimage import label, find_objects, generate_binary_structure
 
+#TODO: Capisci meglio il codice, i problemi riguardano le vertebre che so fatte da 2 pezzi non connessi e le immagini ruotate. Comunque andrebbero capiti meglio la roba del bias se serve / se non serve, ho i miei dubbi sinceramente. Tante immagini so nere e non capisco il perché, magari dovrei diminuire il min_size di extract_relevant_connected_components.
+
+#TODO: Confronta i risultati di questo algoritmo con quelli del vecchio algoritmo. Sta nell'ultimo commit del 14 novembre.
 
 def get_dynamic_x_center(image_data):
     # Calcola l'intensità media su ogni slice lungo l'asse X (profondità)
