@@ -3,7 +3,8 @@ import pickle
 import matplotlib.pyplot as plt
 from access_to_json_files import get_vertebrae_Y_next_distance, get_vertebrae_Y_prev_distances, get_vertebrae_coordinates
 import numpy as np
-from scipy.ndimage import label, find_objects
+from scipy.ndimage import label, find_objects, generate_binary_structure
+
 
 def get_dynamic_x_center(image_data):
     # Calcola l'intensità media su ogni slice lungo l'asse X (profondità)
@@ -14,19 +15,34 @@ def get_dynamic_x_center(image_data):
 
 #FIXME: Se una vertebra è fatta da due componenti che non sono connesse non funziona
 
-
-def extract_largest_connected_component(slice_data):
+def extract_relevant_connected_components(slice_data, min_size= 50, connectivity=2):
     """
-    Isola la componente connessa più grande in una maschera binaria.
+    Isola le componenti connesse rilevanti in una maschera binaria.
+    Args:
+        slice_data (numpy.ndarray): Slice binaria.
+        min_size (int): Dimensione minima per considerare una componente come rilevante.
+        connectivity (int): Connectivity per il labeling (1=4-connectivity, 2=8-connectivity).
+    Returns:
+        numpy.ndarray: Maschera binaria contenente solo le componenti rilevanti.
     """
-    labeled, num_features = label(slice_data)  # Etichettatura delle componenti connesse
-    if num_features == 0:  # Se non ci sono componenti, restituisci la maschera vuota
-        return slice_data
-    component_sizes = np.bincount(labeled.ravel())  # Conta i pixel per etichetta
+    # Etichettatura delle componenti connesse
+    structure = generate_binary_structure(2, connectivity)
+    labeled, num_features = label(slice_data, structure=structure)
+    
+    if num_features == 0:  # Nessuna componente
+        return np.zeros_like(slice_data, dtype=bool)
+    
+    # Conta i pixel per ogni componente
+    component_sizes = np.bincount(labeled.ravel())
     component_sizes[0] = 0  # Ignora lo sfondo
-    largest_label = component_sizes.argmax()  # Trova l'etichetta della componente più grande
-    largest_component = labeled == largest_label  # Crea una maschera con solo la componente più grande
-    return largest_component
+
+    # Crea una maschera binaria per componenti grandi
+    relevant_mask = np.zeros_like(slice_data, dtype=bool)
+    for label_idx, size in enumerate(component_sizes):
+        if size >= min_size:
+            relevant_mask |= (labeled == label_idx)
+    
+    return relevant_mask
 
 def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
@@ -48,8 +64,7 @@ def get_slices(index, nii_images, image_names, json_files):
     for vertebrae_index in range(1, len(json_info)):
         coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
         sagittal_slice = image_data[x_center, :, :]
-        #TODO: Col nuovo algoritmo cosa cambia per la prima e l'ultima?
-        
+
         # Estrazione della regione della vertebra
         if vertebrae_index == 1:
             single_vertebrae_slice = image_data[x_center,
@@ -63,10 +78,10 @@ def get_slices(index, nii_images, image_names, json_files):
             single_vertebrae_slice = image_data[x_center,
                                                 int(round(coordinates[1])) - margin_prev[vertebrae_index-2] - bias:
                                                 int(round(coordinates[1])) + margin_next[vertebrae_index-2] + bias, :]
-        
-        # Isola la componente connessa più grande
-        single_vertebrae_slice = extract_largest_connected_component(single_vertebrae_slice)
-        
+
+        # Isola le componenti connesse rilevanti
+        single_vertebrae_slice = extract_relevant_connected_components(single_vertebrae_slice, min_size=100)
+
         # Aggiungi le slice alla lista
         slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
         slices.append((sagittal_slice, f"Sagittal_{selected_image_name}"))
