@@ -16,7 +16,6 @@ def get_dynamic_x_center(image_data):
     x_center = np.argmax(intensity_means)
     return x_center
 
-#FIXME: Se una vertebra è fatta da due componenti che non sono connesse non funziona
 
 def extract_relevant_connected_components(slice_data, min_size= 50, connectivity=2):
     """

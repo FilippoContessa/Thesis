@@ -11,7 +11,7 @@ def get_vertebrae_coordinates(json_file_index, json_files, vertebrae_index):
     return X, Y, Z
 
 
-# TODO: implementalo con una singola funzione.
+# TODO: implementalo con una singola funzione. (serve sta cosa? non saprei)
 def get_vertebrae_Y_prev_distances(index, json_files):
     json_info = json_files[index]
     coordinate_Y_prev_differences = []
