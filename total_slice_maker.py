@@ -8,7 +8,7 @@ with open("images_data.pkl", "rb") as f:
 with open("json_data.pkl", "rb") as f:
     json_files = pickle.load(f)
 
-# FIXME: mancano all'appello 108,119,236 + il ciclo for che sembra arrestarsi sempre alla 108/119
+# FIXME: mancano all'appello 108,119,236 + il ciclo for che sembra arrestarsi sempre alla 108/119/250(30)
 
 
 for i in range(6,10): 
