@@ -3,7 +3,8 @@ import nibabel as nib
 import json
 import pickle
 
-# TODO: Girare le immagini che sono orizzontali. Magari puo essere fatto a mano ma non so come, chiedi.
+# TODO: Girare le immagini che sono orizzontali. Magari puo essere fatto a mano ma non so come, chiedi. 
+#Vanno girate l'immagine 70 (12esima),l'81 (13),85(15),92(17),101,130,138,143,144,147,149,154,217*,236,271.
 
 # Percorso principale contenente le cartelle sub-versexxx
 main_path = "/mnt/d/osfstorage-archive/dataset-verse19test/derivatives"
