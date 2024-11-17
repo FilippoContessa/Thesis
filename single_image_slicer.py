@@ -17,7 +17,7 @@ def get_dynamic_x_center(image_data):
     return x_center
 
 
-def extract_relevant_connected_components(slice_data, min_size= 50, connectivity=2):
+def extract_relevant_connected_components(slice_data, min_size, connectivity ):
     """
     Isola le componenti connesse rilevanti in una maschera binaria.
     Args:
@@ -82,7 +82,7 @@ def get_slices(index, nii_images, image_names, json_files):
                                                 int(round(coordinates[1])) + margin_next[vertebrae_index-2] + bias, :]
 
         # Isola le componenti connesse rilevanti
-        single_vertebrae_slice = extract_relevant_connected_components(single_vertebrae_slice, min_size=100)
+        single_vertebrae_slice = extract_relevant_connected_components(single_vertebrae_slice, min_size=50, connectivity=1)
 
         # Aggiungi le slice alla lista
         slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
