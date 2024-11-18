@@ -73,7 +73,7 @@ def get_slices(index, nii_images, image_names, json_files):
         if vertebrae_index == 1:
             single_vertebrae_slice = image_data[x_center,
                                                 int(round(coordinates[1])) - fixed_margin - bias:
-                                                int(round(coordinates[1])) + margin_next[vertebrae_index-2] + bias, :]
+                                                int(round(coordinates[1])) + margin_next[vertebrae_index-2], :]
         elif vertebrae_index == len(json_info) - 1:
             single_vertebrae_slice = image_data[x_center,
                                                 int(round(coordinates[1])) - margin_prev[vertebrae_index-2] - bias:
