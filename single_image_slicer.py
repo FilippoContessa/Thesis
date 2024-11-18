@@ -97,7 +97,7 @@ def plot_slice(slice):
     plt.show()
 
 def save_slices(slices, image_name):
-    slices_folder = "slices_output"
+    slices_folder = "rotated_slices_output"
     os.makedirs(slices_folder, exist_ok=True)
     
     subfolder_name = image_name.split('_')[0]  # Estrae "sub-verseXXX" da "sub-verseXXX_seg-vert_msk.nii"
