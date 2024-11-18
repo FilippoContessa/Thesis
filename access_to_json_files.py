@@ -1,7 +1,7 @@
 # dato un .json file, come faccio a ottenere un elemento specifico?
 import pickle
 
-with open("json_data.pkl", "rb") as f:
+with open("training_json_data.pkl", "rb") as f:
     json_files = pickle.load(f)
 
 
@@ -11,7 +11,7 @@ def get_vertebrae_coordinates(json_file_index, json_files, vertebrae_index):
     return X, Y, Z
 
 
-# TODO: implementalo con una singola funzione. (serve sta cosa? non saprei)
+# TODO: implementalo con una singola funzione, prima verifica che sia effettivamente indispensabile.
 def get_vertebrae_Y_prev_distances(index, json_files):
     json_info = json_files[index]
     coordinate_Y_prev_differences = []
