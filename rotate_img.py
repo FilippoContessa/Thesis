@@ -31,8 +31,7 @@ print(f"Forma dell'immagine originale: {image_data.shape}")
 #Scambio assi
 transposed = rotate_image(image_data, axes=(1,0,2))
 # Ruota l'immagine
-rotated_data = np.rot90(transposed,k = 1, axes=(1,2)) 
-
+rotated_data = np.rot90(transposed,k = -1, axes=(1,2)) 
 # Ricrea l'immagine ruotata come oggetto NIfTI
 rotated_image = nib.Nifti1Image(rotated_data, affine=selected_image.affine)
 
