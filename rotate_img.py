@@ -11,6 +11,7 @@ def rotate_image(image_data, axes=(1, 2)):
     """
     return np.transpose(image_data, axes)
 
+#TODO: Check per vedere se va bene, estendi a immagini che richiedono rotazione. Gli assi vanno poi rinominati senno lo slicing viene fatto a cazzo mannaggia tutti 
 
 # Caricare il file .pkl
 with open("training_images_data.pkl", 'rb') as f:
