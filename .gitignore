@@ -1,0 +1,7 @@
+.vscode
+training_images_data.pkl
+slices_output
+__pycache__
+training_json_data.pkl
+rotated_slices_output
+rotated_images_data.pkl
