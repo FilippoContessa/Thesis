@@ -56,7 +56,7 @@ def get_slices(index, nii_images, image_names, json_files):
     # Ottieni i dati dell'immagine
     image_data = selected_image.get_fdata()
     print(f"Nome dell'immagine selezionata: {selected_image_name}")
-    print(f"Forma dell'immagine: {image_data.shape}")
+    # print(f"Forma dell'immagine: {image_data.shape}")
 
     margin_prev = get_vertebrae_Y_prev_distances(index, json_files)
     margin_next = get_vertebrae_Y_next_distance(index, json_files)
@@ -97,7 +97,7 @@ def plot_slice(slice):
     plt.show()
 
 def save_slices(slices, image_name):
-    slices_folder = "rotated_slices_output"
+    slices_folder = "slices_output"
     os.makedirs(slices_folder, exist_ok=True)
     
     subfolder_name = image_name.split('_')[0]  # Estrae "sub-verseXXX" da "sub-verseXXX_seg-vert_msk.nii"
@@ -111,4 +111,4 @@ def save_slices(slices, image_name):
 
         # Salva la slice come immagine PNG
         plt.imsave(slices_path, slice_data, cmap="gray")
-        print(f"Salvato {slice_name} a {slices_path}")
+        # print(f"Salvato {slice_name} a {slices_path}")
