@@ -50,7 +50,7 @@ def extract_relevant_connected_components(slice_data, min_size, connectivity ):
 
 def get_slices(index, nii_images, image_names, json_files):
     selected_image = nii_images[index]
-    selected_image_name = image_names[index]
+    selected_image_name = image_names[index].replace("_seg-vert_msk.nii", "")
     json_info = json_files[index]  # File .json corrispondente all'immagine selezionata
 
     # Ottieni i dati dell'immagine
@@ -68,6 +68,8 @@ def get_slices(index, nii_images, image_names, json_files):
     for vertebrae_index in range(1, len(json_info)):
         coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
         sagittal_slice = image_data[x_center, :, :]
+        vertebra_label = json_info[vertebrae_index]["label"]
+
 
         # Estrazione della regione della vertebra
         if vertebrae_index == 1:
@@ -87,7 +89,7 @@ def get_slices(index, nii_images, image_names, json_files):
         single_vertebrae_slice = extract_relevant_connected_components(single_vertebrae_slice, min_size=50, connectivity=1)
 
         # Aggiungi le slice alla lista
-        slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebrae_index}_slice"))
+        slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebra_label}"))
         slices.append((sagittal_slice, f"Sagittal_{selected_image_name}"))
         
     return slices
