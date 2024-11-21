@@ -9,7 +9,7 @@ image = Image.open(image_path).convert("RGB")
 
 # Definisci una pipeline di trasformazioni
 transform = transforms.Compose([
-    transforms.RandomRotation(degrees=30),  # Rotazione casuale fino a ±30 gradi
+    transforms.RandomRotation(degrees=30),  # Rotazione casuale fino a ±30 gradi 
     transforms.RandomHorizontalFlip(p=0.5),  # Flip orizzontale con probabilità 50%
     transforms.RandomVerticalFlip(p=0.5),    # Flip verticale con probabilità 50%
     transforms.RandomResizedCrop(size=(256, 256), scale=(0.8, 1.0)),  # Scaling casuale con crop
