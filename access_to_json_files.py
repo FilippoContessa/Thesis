@@ -1,4 +1,3 @@
-# dato un .json file, come faccio a ottenere un elemento specifico?
 import pickle
 
 with open("training_json_data.pkl", "rb") as f:

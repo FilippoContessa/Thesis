@@ -12,14 +12,13 @@ from scipy.ndimage import label, find_objects, generate_binary_structure
 #TODO: Confronta i risultati di questo algoritmo con quelli del vecchio algoritmo. Sta nell'ultimo commit del 14 novembre.
 
 def get_dynamic_x_center(image_data):
-    # Calcola l'intensità media su ogni slice lungo l'asse X (profondità)
+    """
+    Calcola il centro dinamico lungo l'asse X basato sull'intensità media.
+    """
     intensity_means = np.mean(image_data, axis=(1, 2))
-    # Trova l'indice con l'intensità massima, che dovrebbe corrispondere alla colonna vertebrale
-    x_center = np.argmax(intensity_means)
-    return x_center
+    return np.argmax(intensity_means)
 
-
-def extract_relevant_connected_components(slice_data, min_size, connectivity ):
+def extract_relevant_connected_components(slice_data, min_size, connectivity):
     """
     Isola le componenti connesse rilevanti in una maschera binaria.
     Args:
