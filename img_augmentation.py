@@ -26,7 +26,7 @@ for root, _, files in os.walk(input_folder):
 
             # Estrai sub-verse e vertebra dal nome del file
             sub_verse = os.path.basename(os.path.dirname(image_path))  # Nome sottocartella (sub-versexxx)
-            vertebra_name = os.path.splitext(file_name)[0]  # Nome file senza estensione
+            vertebra_name = (os.path.splitext(file_name)[0]).split("_", 1)[1] # [0] per eliminare l'estensione, split... per dividere il nome in base al primo _ e prendere solo la seconda parte.
 
             # Percorso per la cartella sub-versexxx
             sub_verse_folder = os.path.join(output_folder, sub_verse)
@@ -52,7 +52,7 @@ for root, _, files in os.walk(input_folder):
             flipped_image.save(flipped_image_path)
 
             # Creazione immagine di confronto
-            comparison_image_path = os.path.join(sub_verse_folder, f"comparison_{vertebra_name}.png")
+            comparison_image_path = os.path.join(sub_verse_folder, f"cmp_{vertebra_name}.png")
 
             # Resizing immagini trasformate per la concatenazione
             original_resized = scaling_transform(image)  # Per uniformare le dimensioni
