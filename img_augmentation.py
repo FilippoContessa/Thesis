@@ -1,8 +1,7 @@
 import os
 from PIL import Image
 from torchvision import transforms
-
-#TODO: nomi delle subdir sotto sub-verse, togliere da comparison la parte sub-verse
+import matplotlib.pyplot as plt
 
 # Percorso della cartella di input (database di immagini)
 input_folder = "slices_output"  # Cartella con le sottocartelle delle immagini
