@@ -1,50 +1,74 @@
 import os
-from torchvision.transforms import functional as F
 from PIL import Image
-import matplotlib.pyplot as plt
+from torchvision import transforms
 
-# Percorso dell'immagine originale
-image_path = "slices_output/sub-verse004/sub-verse004_vertebra_16.png"
-image = Image.open(image_path).convert("RGB")
+# Percorso della cartella di input (database di immagini)
+input_folder = "slices_output"  # Cartella con le sottocartelle delle immagini
 
-# Percorso della cartella di output
-output_folder = "transformed_images"
+# Percorso della cartella di output (per salvare le immagini trasformate)
+output_folder = "augmented_slices"
 os.makedirs(output_folder, exist_ok=True)
 
-# 1. Rotazione di 45 gradi
-rotated_image = F.rotate(image, angle=45)
-rotated_image.save(os.path.join(output_folder, "rotated_image.png"))
+# Trasformazioni
+rotation_transform = transforms.RandomRotation(degrees=(45, 45))  # Rotazione 45°
+scaling_transform = transforms.Resize((256, 256))  # Scaling
+flipping_transform = transforms.RandomHorizontalFlip(p=1)  # Flip orizzontale forzato
 
-# 2. Scaling (ritaglio ridimensionato a 256x256)
-scaled_image = F.resized_crop(image, top=0, left=0, height=image.height, width=image.width, size=(256, 256))
-scaled_image.save(os.path.join(output_folder, "scaled_image.png"))
+# Processa tutte le immagini nel database
+for root, _, files in os.walk(input_folder):
+    for file_name in files:
+        if file_name.endswith((".png", ".jpg", ".jpeg")) and file_name.startswith("sub-verse"):
+            # Percorso immagine
+            image_path = os.path.join(root, file_name)
+            image = Image.open(image_path).convert("RGB")
 
-# 3. Flipping orizzontale
-flipped_image = F.hflip(image)
-flipped_image.save(os.path.join(output_folder, "flipped_image.png"))
+            # Estrai sub-verse e vertebra dal nome del file
+            sub_verse = os.path.basename(os.path.dirname(image_path))  # Nome sottocartella (sub-versexxx)
+            vertebra_name = os.path.splitext(file_name)[0]  # Nome file senza estensione
 
-# Visualizza tutte le immagini
-fig, axes = plt.subplots(1, 4, figsize=(15, 5))
+            # Percorso per la cartella sub-versexxx
+            sub_verse_folder = os.path.join(output_folder, sub_verse)
+            os.makedirs(sub_verse_folder, exist_ok=True)
 
-# Immagine originale
-axes[0].imshow(image)
-axes[0].set_title("Originale")
-axes[0].axis("off")
+            # Percorso per la cartella vertebraxxx
+            vertebra_folder = os.path.join(sub_verse_folder, vertebra_name)
+            os.makedirs(vertebra_folder, exist_ok=True)
 
-# Immagine ruotata
-axes[1].imshow(rotated_image)
-axes[1].set_title("Ruotata")
-axes[1].axis("off")
+            # 1. Rotazione
+            rotated_image = rotation_transform(image)
+            rotated_image_path = os.path.join(vertebra_folder, "rotation.png")
+            rotated_image.save(rotated_image_path)
 
-# Immagine scalata
-axes[2].imshow(scaled_image)
-axes[2].set_title("Scalata")
-axes[2].axis("off")
+            # 2. Scaling
+            scaled_image = scaling_transform(image)
+            scaled_image_path = os.path.join(vertebra_folder, "scaling.png")
+            scaled_image.save(scaled_image_path)
 
-# Immagine capovolta
-axes[3].imshow(flipped_image)
-axes[3].set_title("Capovolta")
-axes[3].axis("off")
+            # 3. Flipping
+            flipped_image = flipping_transform(image)
+            flipped_image_path = os.path.join(vertebra_folder, "flipping.png")
+            flipped_image.save(flipped_image_path)
 
-plt.tight_layout()
-plt.show()
+            # Creazione immagine di confronto
+            comparison_image_path = os.path.join(sub_verse_folder, f"comparison_{vertebra_name}.png")
+
+            # Resizing immagini trasformate per la concatenazione
+            original_resized = scaling_transform(image)  # Per uniformare le dimensioni
+            rotated_resized = scaling_transform(rotated_image)
+            scaled_resized = scaling_transform(scaled_image)
+            flipped_resized = scaling_transform(flipped_image)
+
+            # Concatenazione orizzontale delle immagini
+            comparison_image = Image.new(
+                "RGB",
+                (original_resized.width * 4, original_resized.height)  # Larghezza totale x4 immagini
+            )
+            comparison_image.paste(original_resized, (0, 0))  # Immagine originale
+            comparison_image.paste(rotated_resized, (original_resized.width, 0))  # Rotazione
+            comparison_image.paste(scaled_resized, (original_resized.width * 2, 0))  # Scaling
+            comparison_image.paste(flipped_resized, (original_resized.width * 3, 0))  # Flipping
+
+            # Salva immagine di confronto
+            comparison_image.save(comparison_image_path)
+            print(f"Trasformazioni salvate per: {file_name}")
+            print(f"Immagine di confronto salvata in: {comparison_image_path}")
