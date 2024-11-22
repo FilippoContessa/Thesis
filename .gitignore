@@ -5,3 +5,4 @@ training_json_data.pkl
 rotated_slices_output
 rotated_images_data.pkl
 __pycache__
+augmented_slices
