@@ -1,25 +1,50 @@
-import torch
-from torchvision import transforms
+import os
+from torchvision.transforms import functional as F
 from PIL import Image
 import matplotlib.pyplot as plt
 
+# Percorso dell'immagine originale
 image_path = "slices_output/sub-verse004/sub-verse004_vertebra_16.png"
 image = Image.open(image_path).convert("RGB")
 
+# Percorso della cartella di output
+output_folder = "transformed_images"
+os.makedirs(output_folder, exist_ok=True)
 
-# Definisci una pipeline di trasformazioni
-transform = transforms.Compose([
-    transforms.RandomRotation(degrees=30),  # Rotazione casuale fino a ±30 gradi 
-    transforms.RandomHorizontalFlip(p=0.5),  # Flip orizzontale con probabilità 50%
-    transforms.RandomVerticalFlip(p=0.5),    # Flip verticale con probabilità 50%
-    transforms.RandomResizedCrop(size=(256, 256), scale=(0.8, 1.0)),  # Scaling casuale con crop
-    transforms.ToTensor(),  # Converti in tensor
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalizzazione
-])
+# 1. Rotazione di 45 gradi
+rotated_image = F.rotate(image, angle=45)
+rotated_image.save(os.path.join(output_folder, "rotated_image.png"))
 
-augmented_image = transform(image)
-augmented_image_np = augmented_image.permute(1,2,0).numpy()
+# 2. Scaling (ritaglio ridimensionato a 256x256)
+scaled_image = F.resized_crop(image, top=0, left=0, height=image.height, width=image.width, size=(256, 256))
+scaled_image.save(os.path.join(output_folder, "scaled_image.png"))
 
-plt.imshow(augmented_image_np)
-plt.axis("off")
+# 3. Flipping orizzontale
+flipped_image = F.hflip(image)
+flipped_image.save(os.path.join(output_folder, "flipped_image.png"))
+
+# Visualizza tutte le immagini
+fig, axes = plt.subplots(1, 4, figsize=(15, 5))
+
+# Immagine originale
+axes[0].imshow(image)
+axes[0].set_title("Originale")
+axes[0].axis("off")
+
+# Immagine ruotata
+axes[1].imshow(rotated_image)
+axes[1].set_title("Ruotata")
+axes[1].axis("off")
+
+# Immagine scalata
+axes[2].imshow(scaled_image)
+axes[2].set_title("Scalata")
+axes[2].axis("off")
+
+# Immagine capovolta
+axes[3].imshow(flipped_image)
+axes[3].set_title("Capovolta")
+axes[3].axis("off")
+
+plt.tight_layout()
 plt.show()
