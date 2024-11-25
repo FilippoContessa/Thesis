@@ -11,7 +11,8 @@ output_folder = "augmented_slices_try"
 os.makedirs(output_folder, exist_ok=True)
 
 # Trasformazioni
-rotation_transform = transforms.RandomRotation(degrees=(45, 45))  # Rotazione 45°
+def rotation_transform(image, degrees=45):
+    return image.rotate(degrees,resample=Image.BICUBIC, expand=True)
 scaling_transform = transforms.Resize((128, 128))  # Scaling
 flipping_transform = transforms.RandomHorizontalFlip(p=1)  # Flip orizzontale forzato
 
