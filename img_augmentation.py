@@ -1,5 +1,5 @@
 import os
-from PIL import Image
+from PIL import Image, ImageOps
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
@@ -12,8 +12,35 @@ os.makedirs(output_folder, exist_ok=True)
 
 # Trasformazioni
 rotation_transform = transforms.RandomRotation(45,expand=True)  # Rotazione, aumenta le dimensioni dell'immagine secondo necessità. 
-scaling_transform = transforms.Resize((128, 128))  # Scaling
+
 flipping_transform = transforms.RandomHorizontalFlip(p=1)  # Flip orizzontale forzato
+
+def grayscale_to_binary(image, threshold=128):
+    if image.mode != "L":
+        raise ValueError("L'immagine deve essere in scala di grigi per la binarizzazione.")
+    return image.point(lambda x: 255 if x > threshold else 0, mode="1")
+
+def scaling_transform(image, target_size=(128, 128), threshold=128):
+    """
+    Ridimensiona un'immagine e la converte in binario.
+    Args:
+        image (PIL.Image): L'immagine di input.
+        target_size (tuple): Dimensioni target per il ridimensionamento.
+        threshold (int): Soglia per la binarizzazione.
+    Returns:
+        PIL.Image: Immagine binaria ridimensionata.
+    """
+    # Ridimensionamento
+    resize_transform = transforms.Resize(target_size)  # Nome chiaro per la trasformazione di resizing
+    resized_image = resize_transform(image)
+
+    # Forza la conversione in scala di grigi se necessario
+    if resized_image.mode != "L":
+        resized_image = resized_image.convert("L")
+
+    # Conversione in binario
+    binary_image = grayscale_to_binary(resized_image, threshold=threshold)
+    return binary_image
 
 # Processa tutte le immagini nel database
 for root, _, files in os.walk(input_folder):
