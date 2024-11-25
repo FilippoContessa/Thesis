@@ -23,16 +23,16 @@ def print_memory_usage(phase=""):
 
 
 # Ciclo for con monitoraggio della memoria
-for i in range(0,20):
+for i in range(len(nii_images)):
     print_memory_usage(phase=f"Inizio ciclo {i}")
     
     try:
-        slices = get_slices(i, nii_images, image_names, json_files, fixed_margin=13,bias=3)  # Genera le slice
+        slices = get_slices(i, nii_images, image_names, json_files)  # Genera le slice
         save_slices(slices, image_names[i])  # Salva le slice come immagini
     except Exception as e:
         print(f"Errore durante il processamento dell'indice {i}: {e}")
     
-    # Forza il garbage collection
+    # Libera le variabili inutilizzate e forza il garbage collection
 
     gc.collect()
     
