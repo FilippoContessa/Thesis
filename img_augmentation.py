@@ -12,7 +12,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 # Trasformazioni
 rotation_transform = transforms.RandomRotation(degrees=(45, 45))  # Rotazione 45°
-scaling_transform = transforms.Resize((256, 256))  # Scaling
+scaling_transform = transforms.Resize((128, 128))  # Scaling
 flipping_transform = transforms.RandomHorizontalFlip(p=1)  # Flip orizzontale forzato
 
 # Processa tutte le immagini nel database
