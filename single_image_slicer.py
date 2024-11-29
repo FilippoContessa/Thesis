@@ -20,34 +20,37 @@ def get_dynamic_x_center(image_data):
 
 def extract_relevant_connected_components(slice_data, min_size, connectivity):
     """
-    Isola le componenti connesse rilevanti in una maschera binaria.
+    Isola la componente connessa più grande in una maschera binaria, se supera una dimensione minima.
     Args:
         slice_data (numpy.ndarray): Slice binaria.
         min_size (int): Dimensione minima per considerare una componente come rilevante.
         connectivity (int): Connectivity per il labeling (1=4-connectivity, 2=8-connectivity).
     Returns:
-        numpy.ndarray: Maschera binaria contenente solo le componenti rilevanti.
+        numpy.ndarray: Maschera binaria contenente solo la componente connessa più grande.
     """
     # Etichettatura delle componenti connesse
     structure = generate_binary_structure(2, connectivity)
     labeled, num_features = label(slice_data, structure=structure)
     
-    if num_features == 0:  # Nessuna componente
+    if num_features == 0:  # Nessuna componente rilevata
         return np.zeros_like(slice_data, dtype=bool)
-    
+
     # Conta i pixel per ogni componente
     component_sizes = np.bincount(labeled.ravel())
     component_sizes[0] = 0  # Ignora lo sfondo
 
-    # Crea una maschera binaria per componenti grandi
-    relevant_mask = np.zeros_like(slice_data, dtype=bool)
-    for label_idx, size in enumerate(component_sizes):
-        if size >= min_size:
-            relevant_mask |= (labeled == label_idx)
-    
-    return relevant_mask
+    # Trova l'etichetta della componente connessa più grande
+    largest_component_label = component_sizes.argmax()
 
-def get_slices(index, nii_images, image_names, json_files):
+    # Verifica che la componente connessa più grande superi la dimensione minima
+    if component_sizes[largest_component_label] >= min_size:
+        # Restituisci solo la componente più grande
+        return (labeled == largest_component_label).astype(bool)
+    else:
+        # Nessuna componente soddisfa i criteri
+        return np.zeros_like(slice_data, dtype=bool)
+
+def get_slices(index, nii_images, image_names, json_files, fixed_margin, bias):
     selected_image = nii_images[index]
     selected_image_name = image_names[index].replace("_seg-vert_msk.nii", "")
     json_info = json_files[index]  # File .json corrispondente all'immagine selezionata
@@ -59,8 +62,6 @@ def get_slices(index, nii_images, image_names, json_files):
 
     margin_prev = get_vertebrae_Y_prev_distances(index, json_files)
     margin_next = get_vertebrae_Y_next_distance(index, json_files)
-    fixed_margin = 13
-    bias = 3
     x_center = get_dynamic_x_center(image_data)
     slices = []
 
@@ -69,28 +70,27 @@ def get_slices(index, nii_images, image_names, json_files):
         sagittal_slice = image_data[x_center, :, :]
         vertebra_label = json_info[vertebrae_index]["label"]
 
-
         # Estrazione della regione della vertebra
         if vertebrae_index == 1:
             single_vertebrae_slice = image_data[x_center,
                                                 int(round(coordinates[1])) - fixed_margin - bias:
-                                                int(round(coordinates[1])) + margin_next[vertebrae_index-2], :]
+                                                int(round(coordinates[1])) + margin_next[vertebrae_index - 2], :]
         elif vertebrae_index == len(json_info) - 1:
             single_vertebrae_slice = image_data[x_center,
-                                                int(round(coordinates[1])) - margin_prev[vertebrae_index-2] - bias:
+                                                int(round(coordinates[1])) - margin_prev[vertebrae_index - 2] - bias:
                                                 int(round(coordinates[1])) + fixed_margin + bias, :]
         else:
             single_vertebrae_slice = image_data[x_center,
-                                                int(round(coordinates[1])) - margin_prev[vertebrae_index-2] - bias:
-                                                int(round(coordinates[1])) + margin_next[vertebrae_index-2] + bias, :]
+                                                int(round(coordinates[1])) - margin_prev[vertebrae_index - 2] - bias:
+                                                int(round(coordinates[1])) + margin_next[vertebrae_index - 2] + bias, :]
 
-        # Isola le componenti connesse rilevanti
+        # Isola la componente connessa più grande
         single_vertebrae_slice = extract_relevant_connected_components(single_vertebrae_slice, min_size=50, connectivity=1)
 
         # Aggiungi le slice alla lista
         slices.append((single_vertebrae_slice, f"{selected_image_name}_vertebra_{vertebra_label}"))
         slices.append((sagittal_slice, f"Sagittal_{selected_image_name}"))
-        
+
     return slices
 
 def plot_slice(slice):
@@ -98,7 +98,7 @@ def plot_slice(slice):
     plt.show()
 
 def save_slices(slices, image_name):
-    slices_folder = "slices_output"
+    slices_folder = "slices_output_single"
     os.makedirs(slices_folder, exist_ok=True)
     
     subfolder_name = image_name.split('_')[0]  # Estrae "sub-verseXXX" da "sub-verseXXX_seg-vert_msk.nii"
