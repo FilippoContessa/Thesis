@@ -45,7 +45,7 @@ def scaling_transform(image, target_size=(128, 128), threshold=128):
 # Processa tutte le immagini nel database
 for root, _, files in os.walk(input_folder):
     for file_name in files:
-        if file_name.endswith((".png", ".jpg", ".jpeg")) and file_name.startswith("sub-verse"):
+        if file_name.startswith("sub-verse"):
             # Percorso immagine
             image_path = os.path.join(root, file_name)
             image = Image.open(image_path).convert("RGB")
