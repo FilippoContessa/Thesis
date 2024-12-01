@@ -79,24 +79,3 @@ for epoch in range(epochs):
 
 # Salva il modello
 torch.save(vae.state_dict(), "vae_model.pth")
-
-# Carica e valuta il modello
-vae.eval()
-with torch.no_grad():
-    for imgs in dataloader:
-        imgs = imgs.view(imgs.size(0), -1).to(device)
-        x_reconstructed, mu, sigma = vae(imgs)
-
-        # Visualizza alcune immagini originali e ricostruite
-        original = imgs[0].view(200, 200).cpu().numpy()
-        reconstructed = x_reconstructed[0].view(200, 200).cpu().numpy()
-
-        plt.subplot(1, 2, 1)
-        plt.title("Original")
-        plt.imshow(original, cmap="gray")
-
-        plt.subplot(1, 2, 2)
-        plt.title("Reconstructed")
-        plt.imshow(reconstructed, cmap="gray")
-        plt.show()
-        break  # Mostra solo un batch
