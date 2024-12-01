@@ -20,6 +20,32 @@ def grayscale_to_binary(image, threshold=128):
         raise ValueError("L'immagine deve essere in scala di grigi per la binarizzazione.")
     return image.point(lambda x: 255 if x > threshold else 0, mode="1")
 
+def add_black_background(img, target_size):
+    """
+    Aggiunge uno sfondo nero a un'immagine per adattarla a un quadrato o a un'altra dimensione target.
+    
+    Args:
+        img (PIL.Image): Immagine di input.
+        target_size (tuple): Dimensioni desiderate (larghezza, altezza).
+    
+    Returns:
+        PIL.Image: Immagine con sfondo nero.
+    """
+    # Ottieni le dimensioni originali
+    w, h = img.size
+
+    # Crea una nuova immagine nera con le dimensioni target
+    new_img = Image.new("RGB", target_size, color=(0, 0, 0))
+    
+    # Calcola la posizione per centrare l'immagine originale sullo sfondo nero
+    x_offset = (target_size[0] - w) // 2
+    y_offset = (target_size[1] - h) // 2
+    
+    # Incolla l'immagine originale sopra lo sfondo nero
+    new_img.paste(img, (x_offset, y_offset))
+    
+    return new_img
+
 def scaling_transform(image, target_size=(128, 128), threshold=128):
     """
     Ridimensiona un'immagine e la converte in binario.
@@ -80,16 +106,19 @@ for root, _, files in os.walk(input_folder):
 
             # 1. Rotazione
             rotated_image = rotation_transform(image)
+            rotated_image = add_black_background(rotated_image, (200,200))
             rotated_image_path = os.path.join(vertebra_folder, "rotation.png")
             rotated_image.save(rotated_image_path)
 
             # 2. Scaling
             scaled_image = scaling_transform(image)
+            scaled_image = add_black_background(scaled_image, (200,200))
             scaled_image_path = os.path.join(vertebra_folder, "scaling.png")
             scaled_image.save(scaled_image_path)
 
             # 3. Flipping
             flipped_image = flipping_transform(image)
+            flipped_image = add_black_background(flipped_image, (200,200))
             flipped_image_path = os.path.join(vertebra_folder, "flipping.png")
             flipped_image.save(flipped_image_path)
 
