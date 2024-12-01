@@ -44,6 +44,22 @@ def scaling_transform(image, target_size=(128, 128), threshold=128):
 
 # Processa tutte le immagini nel database
 for root, _, files in os.walk(input_folder):
+
+    sagittal_found = False
+    skip_folder = False
+
+    for file_name in files:
+        if "sagittal" in file_name.lower():
+            sagittal_path = os.path.join(root,file_name)
+            sagittal_image = Image.open(sagittal_path)
+            width, height = sagittal_image.size
+            if width > height: 
+                skip_folder = True
+                print(f"skipping augmentation for folder {root} due to horizontal sagittal img:{file_name} ")
+                break
+    if skip_folder:
+        continue
+
     for file_name in files:
         if file_name.startswith("sub-verse"):
             # Percorso immagine
