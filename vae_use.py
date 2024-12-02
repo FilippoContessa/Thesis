@@ -24,12 +24,12 @@ transform = transforms.Compose([
 ])
 
 # Carica l'immagine
-img_path = "augmented_slices_opt/sub-verse004/vertebra_16/flipping.png"  # Sostituisci con il percorso della tua immagine
-img = Image.open(img_path).convert("L")  # Scala di grigi
+img_path = "augmented_slices_opt/sub-verse004/vertebra_19/scaling.png" 
+img = Image.open(img_path).convert("1")  
 img_tensor = transform(img).view(-1, 200 * 200).to(device)
 
 # Inferenza
-with torch.no_grad():
+with torch.no_grad(): # Disabilita il calcolo del gradiente
     reconstructed, _, _ = vae(img_tensor)
 
 # Converti i tensor in immagini per visualizzarle
@@ -44,5 +44,5 @@ plt.imshow(original, cmap="gray")
 plt.subplot(1, 2, 2)
 plt.title("Reconstructed")
 plt.imshow(reconstruction, cmap="gray")
-
+plt.imsave("reconstructed.png", reconstruction, cmap="gray")
 plt.show()
