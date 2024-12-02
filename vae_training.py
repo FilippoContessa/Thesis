@@ -2,29 +2,15 @@ import os
 import torch
 from torch import nn, optim
 from torchvision import transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from PIL import Image
 import matplotlib.pyplot as plt
-from vae_model import VariationalAutoEncoder
+from vae_model import VariationalAutoEncoder, ImageDataset, loss_function
 
-# Dataset personalizzato per le tue immagini
-class ImageDataset(Dataset):
-    def __init__(self, folder, transform=None):
-        self.folder = folder
-        self.file_paths = [os.path.join(root, file)
-                           for root, _, files in os.walk(folder)
-                           for file in files if file in {"flipping.png", "rotation.png", "scaling.png"}]
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.file_paths)
-
-    def __getitem__(self, idx):
-        img_path = self.file_paths[idx]
-        img = Image.open(img_path).convert("1")  
-        if self.transform:
-            img = self.transform(img)
-        return img
+INPUT_DIM = 100 * 100
+BATCH_SIZE = 128
+EPOCHS = 15
+DEVICE = "cpu"
 
 # Trasformazioni per le immagini
 transform = transforms.Compose([
@@ -33,35 +19,24 @@ transform = transforms.Compose([
 ])
 
 # Carica il dataset
-dataset = ImageDataset("augmented_slices_opt", transform=transform)
+dataset = ImageDataset("augmented_slices", transform=transform)
 print(f"il numero di immagini caricate è: {len(dataset)}")
-dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # VAE Model
-vae = VariationalAutoEncoder(input_dim=200 * 200, h_dim=400, z_dim=20)  # Cambia input_dim alle tue dimensioni
-vae = vae.to("cpu")
+vae = VariationalAutoEncoder(input_dim=INPUT_DIM, h_dim=400, z_dim=20)
+vae = vae.to(DEVICE)
 
-# Loss Function e Ottimizzatore
-def loss_function(x_reconstructed, x, mu, sigma):
-    # Ricostruzione Loss (es. MSE)
-    reconstruction_loss = nn.MSELoss()(x_reconstructed, x)
-
-    # KL Divergence
-    kl_divergence = -0.5 * torch.sum(1 + sigma - mu.pow(2) - sigma.exp())
-
-    return reconstruction_loss + kl_divergence
-
+# Ottimizzatore
 optimizer = optim.Adam(vae.parameters(), lr=1e-3)
 
 # Training Loop
-epochs = 15
-device = "cpu"
 vae.train()
 
-for epoch in range(epochs):
+for epoch in range(EPOCHS):
     total_loss = 0
     for imgs in dataloader:
-        imgs = imgs.view(imgs.size(0), -1).to(device)  # Flatten delle immagini
+        imgs = imgs.view(imgs.size(0), -1).to(DEVICE)  # Flatten delle immagini
         optimizer.zero_grad()
 
         # Forward Pass
@@ -76,7 +51,7 @@ for epoch in range(epochs):
 
         total_loss += loss.item()
 
-    print(f"Epoch {epoch + 1}/{epochs}, Loss: {round(total_loss / len(dataloader),0)}")
+    print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {round(total_loss / len(dataloader),3)}")
 
 # Salva il modello
 torch.save(vae.state_dict(), f"vae_model.pth")
