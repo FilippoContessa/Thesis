@@ -21,7 +21,7 @@ class ImageDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = self.file_paths[idx]
-        img = Image.open(img_path).convert("L")  # Scala di grigi
+        img = Image.open(img_path).convert("1")  
         if self.transform:
             img = self.transform(img)
         return img
@@ -34,11 +34,12 @@ transform = transforms.Compose([
 
 # Carica il dataset
 dataset = ImageDataset("augmented_slices_opt", transform=transform)
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+print(f"il numero di immagini caricate è: {len(dataset)}")
+dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
 # VAE Model
 vae = VariationalAutoEncoder(input_dim=200 * 200, h_dim=400, z_dim=20)  # Cambia input_dim alle tue dimensioni
-vae = vae.to("cuda" if torch.cuda.is_available() else "cpu")
+vae = vae.to("cpu")
 
 # Loss Function e Ottimizzatore
 def loss_function(x_reconstructed, x, mu, sigma):
@@ -53,8 +54,8 @@ def loss_function(x_reconstructed, x, mu, sigma):
 optimizer = optim.Adam(vae.parameters(), lr=1e-3)
 
 # Training Loop
-epochs = 10
-device = "cuda" if torch.cuda.is_available() else "cpu"
+epochs = 15
+device = "cpu"
 vae.train()
 
 for epoch in range(epochs):
@@ -75,7 +76,7 @@ for epoch in range(epochs):
 
         total_loss += loss.item()
 
-    print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(dataloader)}")
+    print(f"Epoch {epoch + 1}/{epochs}, Loss: {round(total_loss / len(dataloader),0)}")
 
 # Salva il modello
-torch.save(vae.state_dict(), "vae_model.pth")
+torch.save(vae.state_dict(), f"vae_model.pth")
