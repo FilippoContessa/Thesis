@@ -1,6 +1,8 @@
 import pickle
 import numpy as np
 import nibabel as nib
+from single_image_slicer import get_dynamic_x_center
+from matplotlib import pyplot as plt
 
 def rotate_image(image_data, axes=(1, 2)):
     """
@@ -11,36 +13,41 @@ def rotate_image(image_data, axes=(1, 2)):
     """
     return np.transpose(image_data, axes)
 
-#TODO: Check per vedere se va bene, estendi a immagini che richiedono rotazione. Gli assi vanno poi rinominati senno lo slicing viene fatto a cazzo mannaggia tutti 
+#TODO: Dovrebbe andare bene, va controllata la segmentazione delle singole vertebre.
 
 # Caricare il file .pkl
 with open("training_images_data.pkl", 'rb') as f:
     data = pickle.load(f)
 
-# Assumendo che il contenuto sia una lista di immagini .nii e nomi
 nii_images, image_names = data
-
-# Indice dell'immagine da ruotare
-index_to_rotate = 15  # Cambia con l'indice dell'immagine specifica da ruotare
+index_to_rotate = 41
 
 # Carica i dati dell'immagine .nii
 selected_image = nii_images[index_to_rotate]
 image_data = selected_image.get_fdata()
 
-print(f"Forma dell'immagine originale: {image_data.shape}")
 
 #Scambio assi
 transposed = rotate_image(image_data, axes=(1,0,2))
+
 # Ruota l'immagine
-rotated_data = np.rot90(transposed,k = -1, axes=(1,2)) 
+rotated_data = np.rot90(transposed,k = 1, axes=(1,2))
+rotated_data_2 = np.rot90(transposed,k = -1, axes=(1,2)) 
 # Ricrea l'immagine ruotata come oggetto NIfTI
+
 rotated_image = nib.Nifti1Image(rotated_data, affine=selected_image.affine)
+rotated_image_2 = nib.Nifti1Image(rotated_data_2, affine=selected_image.affine)
 
-# Sostituisci l'immagine ruotata nella lista
-nii_images[index_to_rotate] = rotated_image
+slice_rotated_image = rotated_data[get_dynamic_x_center(rotated_data), :, :]
+slice_rotated_image_2 = rotated_data_2[get_dynamic_x_center(rotated_data_2), :, :]
+slice_image_data= image_data[get_dynamic_x_center(image_data), :, :]
 
-# Salva il file .pkl aggiornato
-with open("rotated_images_data.pkl", 'wb') as f:
-    pickle.dump((nii_images, image_names), f)
+plt.figure(figsize=(12, 12))  # Modifica (larghezza, altezza) 
+plt.subplot(1, 2, 1)
+plt.title("Trasformata")
+plt.imshow(slice_rotated_image, cmap="gray")
 
-print(f"Immagine ruotata e salvata nel nuovo file .pkl")
+plt.subplot(1, 2, 2)
+plt.title("Originale")
+plt.imshow(slice_image_data, cmap="gray")
+plt.show()
