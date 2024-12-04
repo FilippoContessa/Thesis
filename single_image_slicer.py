@@ -5,11 +5,7 @@ from access_to_json_files import get_vertebrae_Y_next_distance, get_vertebrae_Y_
 import numpy as np
 from scipy.ndimage import label, find_objects, generate_binary_structure
 
-#TODO: Capisci meglio il codice, i problemi riguardano le vertebre che so fatte da 2 pezzi non connessi(credo sia risolto) e le immagini ruotate. Comunque andrebbero capiti meglio la roba del bias se serve / se non serve, ho i miei dubbi sinceramente. 
-
-# Verifica che ci siano poche immagini nere, ma dovrebbe essere ok.
-
-#TODO: Confronta i risultati di questo algoritmo con quelli del vecchio algoritmo. Sta nell'ultimo commit del 14 novembre.
+#TODO: I problemi riguardano le vertebre che so fatte da 2 pezzi non connessi e le immagini ruotate. Comunque andrebbero capiti meglio la roba del bias se serve / se non serve, ho i miei dubbi sinceramente. 
 
 def get_dynamic_x_center(image_data):
     """
@@ -97,12 +93,11 @@ def plot_slice(slice):
     plt.imshow(slice, cmap="gray")
     plt.show()
 
-def save_slices(slices, image_name):
-    slices_folder = "slices_output_single"
-    os.makedirs(slices_folder, exist_ok=True)
+def save_slices(slices, image_name, output_folder):
+    os.makedirs(output_folder, exist_ok=True)
     
     subfolder_name = image_name.split('_')[0]  # Estrae "sub-verseXXX" da "sub-verseXXX_seg-vert_msk.nii"
-    subfolder_path = os.path.join(slices_folder, subfolder_name)
+    subfolder_path = os.path.join(output_folder, subfolder_name)
     os.makedirs(subfolder_path, exist_ok=True)
 
     # Scorre tutte le slice e salva ciascuna nell'ordine specificato
