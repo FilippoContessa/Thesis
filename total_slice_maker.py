@@ -28,7 +28,7 @@ for i in range(len(nii_images)):
     
     try:
         slices = get_slices(i, nii_images, image_names, json_files,fixed_margin=13,bias=3)  # Genera le slice
-        save_slices(slices, image_names[i])  # Salva le slice come immagini
+        save_slices(slices, image_names[i],"slices_output_single")  
     except Exception as e:
         print(f"Errore durante il processamento dell'indice {i}: {e}")
     
