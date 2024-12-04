@@ -1,7 +1,7 @@
 import os
 from PIL import Image, ImageOps
 from torchvision import transforms
-import matplotlib.pyplot as plt
+import shutil
 
 # Percorso della cartella di input (database di immagini)
 input_folder = "slices_output"  # Cartella con le sottocartelle delle immagini
@@ -10,63 +10,39 @@ input_folder = "slices_output"  # Cartella con le sottocartelle delle immagini
 output_folder = "augmented_slices_try"
 os.makedirs(output_folder, exist_ok=True)
 
-# Trasformazioni
-rotation_transform = transforms.RandomRotation(45,expand=True)  # Rotazione, aumenta le dimensioni dell'immagine secondo necessità. 
-
+# Trasformazione per il flipping
 flipping_transform = transforms.RandomHorizontalFlip(p=1)  # Flip orizzontale forzato
 
+# Lista di angoli di rotazione e fattori di scaling
+rotation_angles = [0, 45, 90, 135]
+scaling_factors = [0.5, 1, 1.5]
+
 def grayscale_to_binary(image, threshold=128):
+    """
+    Converte un'immagine in scala di grigi in binaria.
+    """
     if image.mode != "L":
-        raise ValueError("L'immagine deve essere in scala di grigi per la binarizzazione.")
+        image = image.convert("L")
     return image.point(lambda x: 255 if x > threshold else 0, mode="1")
 
 def add_black_background(img, target_size):
     """
     Aggiunge uno sfondo nero a un'immagine per adattarla a un quadrato o a un'altra dimensione target.
-    
-    Args:
-        img (PIL.Image): Immagine di input.
-        target_size (tuple): Dimensioni desiderate (larghezza, altezza).
-    
-    Returns:
-        PIL.Image: Immagine con sfondo nero.
     """
-    # Ottieni le dimensioni originali
     w, h = img.size
-
-    # Crea una nuova immagine nera con le dimensioni target
     new_img = Image.new("RGB", target_size, color=(0, 0, 0))
-    
-    # Calcola la posizione per centrare l'immagine originale sullo sfondo nero
     x_offset = (target_size[0] - w) // 2
     y_offset = (target_size[1] - h) // 2
-    
-    # Incolla l'immagine originale sopra lo sfondo nero
     new_img.paste(img, (x_offset, y_offset))
-    
     return new_img
 
-def scaling_transform(image, target_size=(128, 128), threshold=128):
+def scale_and_add_background(img, factor, target_size=(100, 100)):
     """
-    Ridimensiona un'immagine e la converte in binario.
-    Args:
-        image (PIL.Image): L'immagine di input.
-        target_size (tuple): Dimensioni target per il ridimensionamento.
-        threshold (int): Soglia per la binarizzazione.
-    Returns:
-        PIL.Image: Immagine binaria ridimensionata.
+    Ridimensiona l'immagine in base a un fattore e aggiunge sfondo nero.
     """
-    # Ridimensionamento
-    resize_transform = transforms.Resize(target_size)  # Nome chiaro per la trasformazione di resizing
-    resized_image = resize_transform(image)
-
-    # Forza la conversione in scala di grigi se necessario
-    if resized_image.mode != "L":
-        resized_image = resized_image.convert("L")
-
-    # Conversione in binario
-    binary_image = grayscale_to_binary(resized_image, threshold=threshold)
-    return binary_image
+    new_size = (int(img.width * factor), int(img.height * factor))
+    resized_img = img.resize(new_size)
+    return add_black_background(resized_img, target_size)
 
 # Processa tutte le immagini nel database
 for root, _, files in os.walk(input_folder):
@@ -76,12 +52,12 @@ for root, _, files in os.walk(input_folder):
 
     for file_name in files:
         if "sagittal" in file_name.lower():
-            sagittal_path = os.path.join(root,file_name)
+            sagittal_path = os.path.join(root, file_name)
             sagittal_image = Image.open(sagittal_path)
             width, height = sagittal_image.size
             if width > height: 
                 skip_folder = True
-                print(f"skipping augmentation for folder {root} due to horizontal sagittal img:{file_name} ")
+                print(f"Skipping augmentation for folder {root} due to horizontal sagittal img: {file_name}")
                 break
     if skip_folder:
         continue
@@ -90,11 +66,11 @@ for root, _, files in os.walk(input_folder):
         if file_name.startswith("sub-verse"):
             # Percorso immagine
             image_path = os.path.join(root, file_name)
-            image = Image.open(image_path).convert("RGB")
+            original_image = Image.open(image_path).convert("RGB")
 
             # Estrai sub-verse e vertebra dal nome del file
             sub_verse = os.path.basename(os.path.dirname(image_path))  # Nome sottocartella (sub-versexxx)
-            vertebra_name = (os.path.splitext(file_name)[0]).split("_", 1)[1] # [0] per eliminare l'estensione, split... per dividere il nome in base al primo _ e prendere solo la seconda parte.
+            vertebra_name = (os.path.splitext(file_name)[0]).split("_", 1)[1]
 
             # Percorso per la cartella sub-versexxx
             sub_verse_folder = os.path.join(output_folder, sub_verse)
@@ -104,44 +80,28 @@ for root, _, files in os.walk(input_folder):
             vertebra_folder = os.path.join(sub_verse_folder, vertebra_name)
             os.makedirs(vertebra_folder, exist_ok=True)
 
-            # 1. Rotazione
-            rotated_image = rotation_transform(image)
-            rotated_image = add_black_background(rotated_image, (200,200))
-            rotated_image_path = os.path.join(vertebra_folder, "rotation.png")
-            rotated_image.save(rotated_image_path)
+            # Genera tutte le combinazioni di trasformazioni
+            for angle in rotation_angles:
+                for scale in scaling_factors:
+                    # Rotazione immagine originale
+                    rotated_original = original_image.rotate(angle, expand=True)
+                    scaled_original = scale_and_add_background(rotated_original, scale)
+                    binary_original = grayscale_to_binary(scaled_original)  # Conversione in binario
 
-            # 2. Scaling
-            scaled_image = scaling_transform(image)
-            scaled_image = add_black_background(scaled_image, (200,200))
-            scaled_image_path = os.path.join(vertebra_folder, "scaling.png")
-            scaled_image.save(scaled_image_path)
+                    # Rotazione immagine flippata
+                    flipped_image = flipping_transform(original_image)
+                    rotated_flipped = flipped_image.rotate(angle, expand=True)
+                    scaled_flipped = scale_and_add_background(rotated_flipped, scale)
+                    binary_flipped = grayscale_to_binary(scaled_flipped)  # Conversione in binario
 
-            # 3. Flipping
-            flipped_image = flipping_transform(image)
-            flipped_image = add_black_background(flipped_image, (200,200))
-            flipped_image_path = os.path.join(vertebra_folder, "flipping.png")
-            flipped_image.save(flipped_image_path)
+                    # Salvataggio delle immagini
+                    original_save_path = os.path.join(
+                        vertebra_folder, f"original_angle{angle}_scale{scale}.png"
+                    )
+                    flipped_save_path = os.path.join(
+                        vertebra_folder, f"flipped_angle{angle}_scale{scale}.png"
+                    )
+                    binary_original.save(original_save_path)
+                    binary_flipped.save(flipped_save_path)
 
-            # Creazione immagine di confronto
-            comparison_image_path = os.path.join(sub_verse_folder, f"cmp_{vertebra_name}.png")
-
-            # Resizing immagini trasformate per la concatenazione
-            original_resized = scaling_transform(image)  # Per uniformare le dimensioni
-            rotated_resized = scaling_transform(rotated_image)
-            scaled_resized = scaling_transform(scaled_image)
-            flipped_resized = scaling_transform(flipped_image)
-
-            # Concatenazione orizzontale delle immagini
-            comparison_image = Image.new(
-                "RGB",
-                (original_resized.width * 4, original_resized.height)  # Larghezza totale x4 immagini
-            )
-            comparison_image.paste(original_resized, (0, 0))  # Immagine originale
-            comparison_image.paste(rotated_resized, (original_resized.width, 0))  # Rotazione
-            comparison_image.paste(scaled_resized, (original_resized.width * 2, 0))  # Scaling
-            comparison_image.paste(flipped_resized, (original_resized.width * 3, 0))  # Flipping
-
-            # Salva immagine di confronto
-            comparison_image.save(comparison_image_path)
             print(f"Trasformazioni salvate per: {file_name}")
-            print(f"Immagine di confronto salvata in: {comparison_image_path}")
