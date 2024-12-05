@@ -4,39 +4,59 @@ from torch.utils.data import Dataset
 import os
 from PIL import Image
 from torchvision import transforms
+# FIXME: Vorrei tanto capireil perché non accetta come input immagini 100 x 100
 
-# Da input img -> hidden layer -> mu e sigma, -> repar trick -> decoder -> Output img
-
-class VariationalAutoEncoder(nn.Module): 
-    def __init__(self, input_dim, h_dim, z_dim): #input_dim per MNISt è 28*28=784, h_dim è il numero di neuroni dello strato nascosto, z_dim è la dimensione dello spazio latente
-        super().__init__() # call the constructor of the parent class
+class ConvVariationalAutoEncoder(nn.Module):
+    def __init__(self, z_dim):
+        super(ConvVariationalAutoEncoder, self).__init__()
         
-        # encoder 
-        self.img_2hid = nn.Linear(input_dim, h_dim) # Mandi l'input all'hidden layer
-        self.hid_2mu = nn.Linear(h_dim, z_dim)
-        self.hid_2sigma = nn.Linear(h_dim, z_dim)
+        # Encoder
+        self.encoder = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=4, stride=2, padding=1),  # 1x192x192 -> 32x96x96
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),  # 32x96x96 -> 64x48x48
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),  # 64x48x48 -> 128x24x24
+            nn.ReLU(),
+            nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),  # 128x24x24 -> 256x12x12
+            nn.ReLU(),
+            nn.Flatten()  # 256x12x12 -> 36864
+        )
+        self.fc_mu = nn.Linear(256 * 12 * 12, z_dim)
+        self.fc_sigma = nn.Linear(256 * 12 * 12, z_dim)
+        
+        # Decoder
+        self.fc_decode = nn.Linear(z_dim, 256 * 12 * 12)
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),  # 256x12x12 -> 128x24x24
+            nn.ReLU(),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # 128x24x24 -> 64x48x48
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # 64x48x48 -> 32x96x96
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # 32x96x96 -> 1x192x192
+            nn.Sigmoid()  # Sigmoid per normalizzare nell'intervallo [0, 1]
+        )
 
-        # decoder
-        self.z_2hid = nn.Linear(z_dim, h_dim)
-        self.hid_2img = nn.Linear(h_dim, input_dim)
-
-        self.relu = nn.ReLU()
-
-    def encode(self, x): #q_phi(z|x)
-        h = self.relu(self.img_2hid(x))
-        mu, sigma = self.hid_2mu(h), self.hid_2sigma(h)
+    def encode(self, x):
+        h = self.encoder(x)
+        mu = self.fc_mu(h)
+        sigma = self.fc_sigma(h)
         return mu, sigma
 
-    def decode(self, z): #p_theta(x|z)
-        h = self.relu(self.z_2hid(z))
-        return torch.sigmoid(self.hid_2img(h))
+    def decode(self, z):
+        h = self.fc_decode(z)
+        h = h.view(-1, 256, 12, 12)  # Reshape to match decoder input
+        x_reconstructed = self.decoder(h)
+        return x_reconstructed
 
     def forward(self, x):
         mu, sigma = self.encode(x)
         epsilon = torch.randn_like(sigma)
-        z_new = mu + sigma*epsilon
-        x_reconstructed = self.decode(z_new)
+        z = mu + sigma * epsilon
+        x_reconstructed = self.decode(z)
         return x_reconstructed, mu, sigma
+
 
 class ImageDataset(Dataset):
     def __init__(self, folder, transform=None):
@@ -46,19 +66,21 @@ class ImageDataset(Dataset):
                            for file in files if file.startswith("flipped") or file.startswith("original")
         ]
         self.transform = transform
+
     def __len__(self):
         return len(self.file_paths)
 
     def __getitem__(self, idx):
         img_path = self.file_paths[idx]
-        img = Image.open(img_path).convert("1")  
+        img = Image.open(img_path).convert("L")  # Grayscale images
         if self.transform:
             img = self.transform(img)
         return img
 
+
 def loss_function(x_reconstructed, x, mu, sigma):
-    # Ricostruzione Loss (es. MSE)
-    reconstruction_loss = nn.MSELoss()(x_reconstructed, x)
+    # Ricostruzione Loss (e.g., Binary Cross Entropy)
+    reconstruction_loss = nn.BCELoss()(x_reconstructed, x)
 
     # KL Divergence
     kl_divergence = -0.5 * torch.sum(1 + sigma - mu.pow(2) - sigma.exp())

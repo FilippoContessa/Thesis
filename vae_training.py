@@ -5,17 +5,17 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from PIL import Image
 import matplotlib.pyplot as plt
-from vae_model import VariationalAutoEncoder, ImageDataset, loss_function
+from vae_model import ConvVariationalAutoEncoder, ImageDataset, loss_function  # Assicurati di usare il modello corretto
 
-INPUT_DIM = 100 * 100
+INPUT_DIM = 192 * 192  # Aggiornato per immagini 192x192
 BATCH_SIZE = 128
-EPOCHS = 15
+EPOCHS = 5
 DEVICE = "cpu"
 
 # Trasformazioni per le immagini
 transform = transforms.Compose([
+    transforms.Resize((192, 192)),  # Assicurati che le immagini siano 192x192
     transforms.ToTensor(),  # Converte in Tensor e normalizza in [0, 1]
-    transforms.Normalize((0.5,), (0.5,))  # Normalizza i valori (media=0.5, std=0.5)
 ])
 
 # Carica il dataset
@@ -24,7 +24,7 @@ print(f"il numero di immagini caricate è: {len(dataset)}")
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # VAE Model
-vae = VariationalAutoEncoder(input_dim=INPUT_DIM, h_dim=400, z_dim=20)
+vae = ConvVariationalAutoEncoder(z_dim=20)
 vae = vae.to(DEVICE)
 
 # Ottimizzatore
@@ -36,7 +36,7 @@ vae.train()
 for epoch in range(EPOCHS):
     total_loss = 0
     for imgs in dataloader:
-        imgs = imgs.view(imgs.size(0), -1).to(DEVICE)  # Flatten delle immagini
+        imgs = imgs.to(DEVICE)  # Immagini non devono essere "flattened" per le CNN
         optimizer.zero_grad()
 
         # Forward Pass
@@ -54,4 +54,4 @@ for epoch in range(EPOCHS):
     print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {round(total_loss / len(dataloader),3)}")
 
 # Salva il modello
-torch.save(vae.state_dict(), f"vae_model.pth")
+torch.save(vae.state_dict(), f"conv_vae_model.pth")
