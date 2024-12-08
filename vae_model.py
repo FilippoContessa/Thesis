@@ -4,7 +4,6 @@ from torch.utils.data import Dataset
 import os
 from PIL import Image
 from torchvision import transforms
-# FIXME: Perché non accetta come input immagini 100 x 100 ?
 
 class ConvVariationalAutoEncoder(nn.Module):
     def __init__(self, z_dim):
@@ -13,29 +12,29 @@ class ConvVariationalAutoEncoder(nn.Module):
         # Encoder : # input channel (scala di grigi = 1) , output channel = n° feature map ottenute, kernel size = dimensione del filtro(4x4) , stride = passo con cui scorre il filtro, padding = aggiunta pixel bordi.
         
         self.encoder = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=4, stride=2, padding=1),  # 1x192x192 -> 32x96x96
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=4, stride=2, padding=1),  # 1x96x96 -> 32x48x48
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),  # 32x96x96 -> 64x48x48
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),  # 32x48x48 -> 64x24x24
             nn.ReLU(),
-            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),  # 64x48x48 -> 128x24x24
+            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),  # 64x24x24 -> 128x12x12
             nn.ReLU(),
-            nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),  # 128x24x24 -> 256x12x12
+            nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),  # 128x12x12 -> 256x6x6
             nn.ReLU(),
-            nn.Flatten()  # 256x12x12 -> 36864
+            nn.Flatten()  # 256x6x6 -> 9216
         )
-        self.fc_mu = nn.Linear(256 * 12 * 12, z_dim)
-        self.fc_sigma = nn.Linear(256 * 12 * 12, z_dim)
+        self.fc_mu = nn.Linear(256 * 6 * 6, z_dim)
+        self.fc_sigma = nn.Linear(256 * 6 * 6, z_dim)
         
         # Decoder
-        self.fc_decode = nn.Linear(z_dim, 256 * 12 * 12)
+        self.fc_decode = nn.Linear(z_dim, 256 * 6 * 6)
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),  # 256x12x12 -> 128x24x24
+            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),  # 256x6x6 -> 128x12x12
             nn.ReLU(),
-            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # 128x24x24 -> 64x48x48
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # 128x12x12 -> 64x24x24
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # 64x48x48 -> 32x96x96
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # 64x24x24 -> 32x48x48
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # 32x96x96 -> 1x192x192
+            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # 32x48x48 -> 1x96x96
             nn.Sigmoid()  # Sigmoid per normalizzare nell'intervallo [0, 1]
         )
 
@@ -47,7 +46,7 @@ class ConvVariationalAutoEncoder(nn.Module):
 
     def decode(self, z):
         h = self.fc_decode(z)
-        h = h.view(-1, 256, 12, 12)  # Reshape to match decoder input: -1 = capisci questo parametro da solo, 256 n° feature map, 12x12 è la dimensione voluta.
+        h = h.view(-1, 256, 6, 6)  # Reshape to match decoder input: -1 = capisci questo parametro da solo, 256 n° feature map, 12x12 è la dimensione voluta.
         x_reconstructed = self.decoder(h)
         return x_reconstructed
 

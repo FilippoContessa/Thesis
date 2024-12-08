@@ -7,7 +7,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from vae_model import ConvVariationalAutoEncoder, ImageDataset, loss_function  
 
-INPUT_DIM = 192 * 192  # Aggiornato per immagini 192x192
+INPUT_DIM = 96 * 96 
 BATCH_SIZE = 128
 EPOCHS = 5
 DEVICE = "cpu"
@@ -19,7 +19,7 @@ transform = transforms.Compose([
 
 # Carica il dataset
 dataset = ImageDataset("augmented_slices", transform=transform)
-print(f"il numero di immagini caricate è: {len(dataset)}")
+print(f"Il numero di immagini nel db è: {len(dataset)}")
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # VAE Model

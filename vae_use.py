@@ -5,7 +5,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 
 # Impostazioni
-INPUT_DIM = 192 * 192  # Nuova dimensione dell'immagine (192x192)
+INPUT_DIM = 96 * 96 
 DEVICE = "cpu"
 
 # Inizializza il modello
@@ -20,8 +20,7 @@ vae.eval()
 
 # Trasformazioni delle immagini (devono essere identiche a quelle usate durante il training)
 transform = transforms.Compose([
-    transforms.Resize((192, 192)),  # Assicurati che l'immagine sia 192x192
-    transforms.ToTensor(),  # Converte in Tensor e normalizza in [0, 1]
+    transforms.ToTensor(),  # Converte in Tensor 
 ])
 
 # Carica l'immagine
