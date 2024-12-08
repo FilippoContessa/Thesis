@@ -3,12 +3,10 @@ from PIL import Image, ImageOps
 from torchvision import transforms
 import shutil
 
-# Percorso della cartella di input (database di immagini)
-input_folder = "slices_output"  # Cartella con le sottocartelle delle immagini
-
-# Percorso della cartella di output (per salvare le immagini trasformate)
-output_folder = "augmented_slices_try"
+input_folder = "slices_output_single"  
+output_folder = "augmented_slices"
 os.makedirs(output_folder, exist_ok=True)
+TARGET_SIZE = (96, 96)
 
 # Trasformazione per il flipping
 flipping_transform = transforms.RandomHorizontalFlip(p=1)  # Flip orizzontale forzato
@@ -36,7 +34,7 @@ def add_black_background(img, target_size):
     new_img.paste(img, (x_offset, y_offset))
     return new_img
 
-def scale_and_add_background(img, factor, target_size=(100, 100)):
+def scale_and_add_background(img, factor, target_size=TARGET_SIZE):
     """
     Ridimensiona l'immagine in base a un fattore e aggiunge sfondo nero.
     """
