@@ -5,7 +5,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from PIL import Image
 import matplotlib.pyplot as plt
-from vae_model import ConvVariationalAutoEncoder, ImageDataset, loss_function  # Assicurati di usare il modello corretto
+from vae_model import ConvVariationalAutoEncoder, ImageDataset, loss_function  
 
 INPUT_DIM = 192 * 192  # Aggiornato per immagini 192x192
 BATCH_SIZE = 128
@@ -14,8 +14,7 @@ DEVICE = "cpu"
 
 # Trasformazioni per le immagini
 transform = transforms.Compose([
-    transforms.Resize((192, 192)),  # Assicurati che le immagini siano 192x192
-    transforms.ToTensor(),  # Converte in Tensor e normalizza in [0, 1]
+    transforms.ToTensor(),  # Converte in Tensor
 ])
 
 # Carica il dataset

@@ -4,15 +4,16 @@ from torch.utils.data import Dataset
 import os
 from PIL import Image
 from torchvision import transforms
-# FIXME: Vorrei tanto capireil perché non accetta come input immagini 100 x 100
+# FIXME: Perché non accetta come input immagini 100 x 100 ?
 
 class ConvVariationalAutoEncoder(nn.Module):
     def __init__(self, z_dim):
         super(ConvVariationalAutoEncoder, self).__init__()
         
-        # Encoder
+        # Encoder : # input channel (scala di grigi = 1) , output channel = n° feature map ottenute, kernel size = dimensione del filtro(4x4) , stride = passo con cui scorre il filtro, padding = aggiunta pixel bordi.
+        
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=4, stride=2, padding=1),  # 1x192x192 -> 32x96x96
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=4, stride=2, padding=1),  # 1x192x192 -> 32x96x96
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),  # 32x96x96 -> 64x48x48
             nn.ReLU(),
@@ -46,7 +47,7 @@ class ConvVariationalAutoEncoder(nn.Module):
 
     def decode(self, z):
         h = self.fc_decode(z)
-        h = h.view(-1, 256, 12, 12)  # Reshape to match decoder input
+        h = h.view(-1, 256, 12, 12)  # Reshape to match decoder input: -1 = capisci questo parametro da solo, 256 n° feature map, 12x12 è la dimensione voluta.
         x_reconstructed = self.decoder(h)
         return x_reconstructed
 
@@ -79,7 +80,6 @@ class ImageDataset(Dataset):
 
 
 def loss_function(x_reconstructed, x, mu, sigma):
-    # Ricostruzione Loss (e.g., Binary Cross Entropy)
     reconstruction_loss = nn.BCELoss()(x_reconstructed, x)
 
     # KL Divergence
