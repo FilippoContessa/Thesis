@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from vae_model import ConvVariationalAutoEncoder, ImageDataset, loss_function  
 
 INPUT_DIM = 96 * 96 
+Z_DIM = 30
 BATCH_SIZE = 128
 EPOCHS = 5
 DEVICE = "cpu"
@@ -19,11 +20,11 @@ transform = transforms.Compose([
 
 # Carica il dataset
 dataset = ImageDataset("augmented_slices", transform=transform)
-print(f"Il numero di immagini nel db è: {len(dataset)}")
+print(f"Il numero di immagini nel Database è: {len(dataset)}")
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # VAE Model
-vae = ConvVariationalAutoEncoder(z_dim=20)
+vae = ConvVariationalAutoEncoder(z_dim=Z_DIM)
 vae = vae.to(DEVICE)
 
 # Ottimizzatore
@@ -34,15 +35,15 @@ vae.train()
 
 for epoch in range(EPOCHS):
     total_loss = 0
-    for imgs in dataloader:
-        imgs = imgs.to(DEVICE)  # Immagini non devono essere "flattened" per le CNN
+    for img in dataloader:
+        img = img.to(DEVICE)  
         optimizer.zero_grad()
 
         # Forward Pass
-        x_reconstructed, mu, sigma = vae(imgs)
+        x_reconstructed, mu, sigma = vae(img)
 
         # Loss
-        loss = loss_function(x_reconstructed, imgs, mu, sigma)
+        loss = loss_function(x_reconstructed, img, mu, sigma)
         loss.backward()
 
         # Aggiorna i pesi
