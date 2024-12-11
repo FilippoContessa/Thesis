@@ -47,8 +47,7 @@ rotated_data = np.rot90(transposed,k = -1, axes=(1,2))
 rotated_image = nib.Nifti1Image(rotated_data, affine=selected_image.affine)
 nii_images[index_to_rotate] = rotated_image
 
-slice_rotated_image = rotated_data[get_dynamic_x_center(rotated_data), :, :]
-slice_image_data= image_data[get_dynamic_x_center(image_data), :, :]
+sagittal_rotated_image = rotated_data[get_dynamic_x_center(rotated_data), :, :]
 
 # Trying to obtain slices: 
 slices = get_slices(index_to_rotate, nii_images, image_names, json_files, fixed_margin=13, bias=15)
