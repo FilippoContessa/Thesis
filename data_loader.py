@@ -62,7 +62,7 @@ for subdir in os.listdir(main_path):
         for file in os.listdir(subdir_path):
             if file.endswith(".json"):
                 json_path = os.path.join(subdir_path, file)
-                
+                print(f"sto lavorando sul file: {str(file)}")
                 # Carica il file JSON
                 with open(json_path, 'r') as f:
                     data = json.load(f)

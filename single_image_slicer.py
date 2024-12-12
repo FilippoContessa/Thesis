@@ -60,12 +60,12 @@ def get_slices(index, nii_images, image_names, json_files, fixed_margin, bias):
     margin_next = get_vertebrae_Y_next_distance(index, json_files)
     x_center = get_dynamic_x_center(image_data)
     slices = []
+    sagittal_slice = image_data[x_center, :, :]
 
     for vertebrae_index in range(1, len(json_info)):
         coordinates = get_vertebrae_coordinates(index, json_files, vertebrae_index)
-        sagittal_slice = image_data[x_center, :, :]
         vertebra_label = json_info[vertebrae_index]["label"]
-
+        #TODO: Lavora direttamente sulla sagittal slice
         # Estrazione della regione della vertebra
         if vertebrae_index == 1:
             single_vertebrae_slice = image_data[x_center,
@@ -80,7 +80,7 @@ def get_slices(index, nii_images, image_names, json_files, fixed_margin, bias):
                                                 int(round(coordinates[1])) - margin_prev[vertebrae_index - 2] - bias:
                                                 int(round(coordinates[1])) + margin_next[vertebrae_index - 2] + bias, :]
 
-        # Isola la componente connessa più grande
+        # Isola la componente connessa più grande 
         single_vertebrae_slice = extract_relevant_connected_components(single_vertebrae_slice, min_size=50, connectivity=1)
 
         # Aggiungi le slice alla lista
