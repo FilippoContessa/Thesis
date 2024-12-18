@@ -46,7 +46,7 @@ class ConvVariationalAutoEncoder(nn.Module):
 
     def decode(self, z):
         h = self.fc_decode(z)
-        h = h.view(-1, 256, 6, 6)  # Reshape to match decoder input: -1 = capisci questo parametro da solo, 256 n° feature map, 12x12 è la dimensione voluta.
+        h = h.view(-1, 256, 6, 6)  # Reshape to match decoder input:  256 n° feature map, 12x12 è la dimensione voluta.
         x_reconstructed = self.decoder(h)
         return x_reconstructed
 
@@ -78,10 +78,10 @@ class ImageDataset(Dataset):
         return img
 
 
-def loss_function(x_reconstructed, x, mu, sigma):
+def loss_function(x_reconstructed, x, mu, sigma, beta):
     reconstruction_loss = nn.BCELoss()(x_reconstructed, x)
 
     # KL Divergence
     kl_divergence = -0.5 * torch.sum(1 + sigma - mu.pow(2) - sigma.exp())
 
-    return reconstruction_loss + kl_divergence
+    return reconstruction_loss + beta * kl_divergence
