@@ -11,7 +11,7 @@ INPUT_DIM = 96 * 96
 Z_DIM = 30
 BATCH_SIZE = 128
 EPOCHS = 7
-BETA_INIT = 1.
+BETA = 5E-6
 LR=1e-3
 DEVICE = "cpu"
 
@@ -21,17 +21,15 @@ transform = transforms.Compose([
 ])
 
 # Carica il dataset
-dataset = ImageDataset("augmented_slices123", transform=transform)
+dataset = ImageDataset("augmented_slices", transform=transform)
 print(f"Il numero di immagini nel Database è: {len(dataset)}")
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-
 # VAE Model
 vae = ConvVariationalAutoEncoder(z_dim=Z_DIM)
-beta = torch.tensor(BETA_INIT, requires_grad=True)
-vae, beta = vae.to(DEVICE), beta.to(DEVICE)
+vae = vae.to(DEVICE)
 
 # Ottimizzatore
-optimizer = optim.Adam(list(vae.parameters()) + [beta], lr=LR)
+optimizer = optim.Adam(vae.parameters(), lr=LR)
 
 # Training Loop
 vae.train()
@@ -46,7 +44,7 @@ for epoch in range(EPOCHS):
         x_reconstructed, mu, sigma = vae(img)
 
         # Loss
-        loss = loss_function(x_reconstructed, img, mu, sigma, beta)
+        loss = loss_function(x_reconstructed, img, mu, sigma, beta=BETA)
         loss.backward()
 
         # Aggiorna i pesi
@@ -54,7 +52,7 @@ for epoch in range(EPOCHS):
 
         total_loss += loss.item()
 
-    print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {round(total_loss / len(dataloader),3)}, Beta: {beta.item():.4f}")
+    print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {round(total_loss / len(dataloader),3)}")
 
 # Salva il modello
-torch.save(vae.state_dict(), f"conv_vae_model.pth")
+torch.save(vae.state_dict(), f"conv_vae_model_Beta={str(print(BETA))}.pth")
