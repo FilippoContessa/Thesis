@@ -49,7 +49,7 @@ class ConvVariationalAutoEncoder(nn.Module):
         h = h.view(-1, 256, 6, 6)  # Reshape to match decoder input:  256 n° feature map, 12x12 è la dimensione voluta.
         x_reconstructed = self.decoder(h)
         return x_reconstructed
-
+    
     def forward(self, x):
         mu, sigma = self.encode(x)
         epsilon = torch.randn_like(sigma)

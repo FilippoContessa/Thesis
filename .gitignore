@@ -1,8 +1,11 @@
 .vscode
-training_images_data.pkl
-slices_output
-training_json_data.pkl
-rotated_slices_output
-rotated_images_data.pkl
 __pycache__
 augmented_slices
+augmented_slices2.0
+rotated_slice_output_single
+conv_vae_model.pth
+slices_output_single
+slices_output_double
+rotated_slice_output_single
+augmented_slices123
+cropped_slices
