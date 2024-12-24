@@ -11,7 +11,8 @@ Z_DIM = 30
 DEVICE = "cpu"
 MODEL_PATH = "conv_vae_model_Beta=5e-6.pth"
 img_path = "augmented_slices2.0/sub-verse005/vertebra_21/original_angle0_scale1.png"
-os.makedirs("Generated_imgs", exist_ok=True)
+output_path="Generated_imgs"
+os.makedirs(output_path, exist_ok=True)
 
 
 # Inizializza il modello
@@ -65,6 +66,6 @@ with torch.no_grad():  # Disabilita il calcolo del gradiente
             plt.imshow(generated_img, cmap="gray")
             plt.title(f"Generated Image{index+1}")
             plt.axis("off")
-            save_path=os.path.join("Generated_imgs",f"Generated_Image{index+1}.png")
+            save_path=os.path.join(output_path,f"Generated_Image{index+1}.png")
             plt.savefig(save_path) 
             print(f"creata e salvata immagine{index+1}")
