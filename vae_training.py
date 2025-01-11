@@ -55,4 +55,4 @@ for epoch in range(EPOCHS):
     print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {round(total_loss / len(dataloader),3)}")
 
 # Salva il modello
-torch.save(vae.state_dict(), f"conv_vae_model_Beta={str(print(BETA))}.pth")
+torch.save(vae.state_dict(),f"conv_vae_model_Beta={BETA}.pth")
