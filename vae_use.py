@@ -9,9 +9,9 @@ import os
 INPUT_DIM = 96 * 96 
 Z_DIM = 30
 DEVICE = "cpu"
-MODEL_PATH = "conv_vae_model_Beta=5e-6.pth"
+MODEL_PATH = "Models/conv_vae_model_Beta=8e-05.pth"
 img_path = "augmented_slices2.0/sub-verse005/vertebra_21/original_angle0_scale1.png"
-output_path="Generated_imgs"
+output_path="Generated_Imgs/Beta=8e-05"
 os.makedirs(output_path, exist_ok=True)
 
 
@@ -27,6 +27,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),  # Converte in Tensor 
 ])
 
+"""
 # --- Ricostruzione di un'immagine ---
 img = Image.open(img_path).convert("L")  
 img_tensor = transform(img).unsqueeze(0).to(DEVICE)  # Aggiungi una dimensione batch (1, 1, 192, 192)
@@ -37,9 +38,7 @@ with torch.no_grad():  # Disabilita il calcolo del gradiente
 # Converti i tensor in immagini per visualizzarle
 original = img_tensor.squeeze(0).cpu().numpy()  # Rimuovi la dimensione batch (1)
 reconstruction = reconstructed.squeeze(0).cpu().numpy()  # Rimuovi la dimensione batch (1)
-
 # Visualizza 
-"""
 plt.subplot(1, 2, 1)
 plt.title("Original")
 plt.imshow(original[0], cmap="gray")
@@ -64,8 +63,8 @@ with torch.no_grad():  # Disabilita il calcolo del gradiente
 
             # Visualizza l'immagine generata
             plt.imshow(generated_img, cmap="gray")
-            plt.title(f"Generated Image{index+1}")
+            plt.title(f"Generated Image {index+1}")
             plt.axis("off")
-            save_path=os.path.join(output_path,f"Generated_Image{index+1}.png")
+            save_path=os.path.join(output_path,f"Generated_Image_{index+1}.png")
             plt.savefig(save_path) 
-            print(f"creata e salvata immagine{index+1}")
+            print(f"creata e salvata immagine numero: {index+1}")
